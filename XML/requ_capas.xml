@@ -1,0 +1,21 @@
+<required-capabilities>
+    <requirement-name>detect-DDoS</requirement-name>
+    <capability>
+        <capability-name>firewall-capability</capability-name>
+        <capability-property>concrete</capability-property>
+    </capability>
+    <capability>
+        <capability-name>ddos-detection-capability</capability-name>
+        <capability-property>concrete</capability-property>
+        <capability-measurements>
+            <capability-measurement>
+                <capability-measurement-name>detection-rate</capability-measurement-name>
+                <detection-rate>90</detection-rate>
+            </capability-measurement>
+            <capability-measurement>
+                <capability-measurement-name>detection-system-response-time</capability-measurement-name>
+                <detection-system-response-time>60</detection-system-response-time>
+            </capability-measurement>
+        </capability-measurements>
+    </capability>
+</required-capabilities>
