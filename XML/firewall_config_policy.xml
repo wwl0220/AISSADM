@@ -1,0 +1,15 @@
+<security-function-configuration-policy>
+  <policy-name>firewall-configuration</policy-name>
+  <security-function-configuration>
+    <security-function-name>firewall</security-function-name>
+    <mapping-substrate-node-number>4<mapping-substrate-node-number>
+    <configuration-policy>
+      <packet-ipv4-address>
+        <src-ipv4-address>14.0.2.3</src-ipv4-address>
+      </packet-ipv4-address>
+      <packet-action>
+        <action>drop</action>
+      </packet-action>
+    </configuration-policy>
+  </security-function-configuration>
+</security-function-configuration-policy>
