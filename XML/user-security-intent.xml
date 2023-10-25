@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserSecurityIntent>
+    <Iid="IntentID"/>
+    <Conditions>
+        <DeviceRange>
+            <Source="any"/>
+            <Destination="Edge server"/>
+        </DeviceRange>
+    </Conditions>
+    <Object="DDos Attack"/>
+    <Action="Detect"/>
+    <SLR=1/>
+</UserSecurityIntent>

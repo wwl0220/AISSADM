@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AISFCPolicy>
+    <Iid="IntentID"/>
+    <Conditions>
+        <DeviceRange>
+            <Source="any"/>
+            <Destination="Edge server"/>
+        </DeviceRange>
+    </Conditions>
+    <Chain>
+        <Ingress="ingress"/>
+        <AISF>
+            <AISFid="AISF-1"/>
+            <AISFa="flow-based"/>
+            <Modelid="M-1-1"/>
+            <Workload=81/>
+            <Orde=1/>
+        </AISF>
+        <AISF>
+            <AISFid="AISF-2"/>
+            <AISFa="flow-based"/>
+            <Modelid="M-2-1"/>
+            <Workload=89/>
+            <Orde=2/>
+        </AISF>
+        <AISF>
+            <AISFid="AISF-3"/>
+            <AISFa="flow-based"/>
+            <Modelid="M-3-1"/>
+            <Workload=86/>
+            <Orde=3/>
+        </AISF>
+        <Egress="egress"/>
+    </Chain>
+</AISFCPolicy>

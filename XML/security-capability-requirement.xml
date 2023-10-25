@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SecurityCapabilityRequirement>
+    <Iid="IntentID"/>
+    <Conditions>
+        <DeviceRange>
+            <Source="any"/>
+            <Destination="Edge server"/>
+        </DeviceRange>
+    </Conditions>
+    <SLR=1/>
+    <SCs>
+        <SC="DDos detection"/>
+    </SCs>
+</SecurityCapabilityRequirement>
