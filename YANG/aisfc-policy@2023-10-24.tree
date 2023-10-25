@@ -1,0 +1,17 @@
+module: aisfc-policy
+  +--rw AISFCPolicy* [Iid]
+     +--rw Iid           string
+     +--rw conditions
+     |  +--rw TimeInformation?   string
+     |  +--rw DeviceRange
+     |     +--rw Source?        string
+     |     +--rw Destination?   string
+     +--rw Chain
+        +--rw Ingress?   string
+        +--rw AISF
+        |  +--rw AISFid?     string
+        |  +--rw AISFa?      string
+        |  +--rw Modelid?    string
+        |  +--rw Workload?   decimal64
+        |  +--rw Order?      uint8
+        +--rw Egress?    string

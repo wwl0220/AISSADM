@@ -1,0 +1,11 @@
+module: user-security-intent
+  +--rw UserSecurityIntent* [Iid]
+     +--rw Iid           string
+     +--rw conditions
+     |  +--rw TimeInformation?   string
+     |  +--rw DeviceRange
+     |     +--rw Source?        string
+     |     +--rw Destination?   string
+     +--rw Object?       string
+     +--rw Action?       string
+     +--rw SLR?          uint8

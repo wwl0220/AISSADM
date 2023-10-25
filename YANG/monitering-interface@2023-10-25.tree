@@ -1,0 +1,35 @@
+module: monitering-interface
+
+  notifications:
+    +---n substrate-network-topology
+    |  +--ro substrate-node* [label]
+    |  |  +--ro label    string
+    |  |  +--ro ip?      inet:ipv4-address-no-zone
+    |  +--ro substrate-link* [label]
+    |     +--ro label         string
+    |     +--ro link-start?   inet:ipv4-address-no-zone
+    |     +--ro link-end?     inet:ipv4-address-no-zone
+    +---n substrate-network-resource
+    |  +--ro computing-resource* [label]
+    |  |  +--ro label        string
+    |  |  +--ro type?        string
+    |  |  +--ro freq?        uint64
+    |  |  +--ro max-usage?   uint8
+    |  +--ro bandwidth* [label]
+    |     +--ro label    string
+    |     +--ro bw?      uint64
+    +---n substrate-network-status
+    |  +--ro device* [label]
+    |     +--ro label                      string
+    |     +--ro IP?                        inet:ipv4-address-no-zone
+    |     +--ro destination?               inet:ipv4-address-no-zone
+    |     +--ro average-packet-length?     decimal64
+    |     +--ro peak-traffic-rate?         decimal64
+    |     +--ro average-packet-per-flow?   decimal64
+    +---n aisf-event
+       +--ro inference-result* [label]
+       |  +--ro label     string
+       |  +--ro result?   string
+       +--ro running-status* [label]
+          +--ro label     string
+          +--ro status?   string

@@ -1,0 +1,46 @@
+module user-security-intent{
+  yang-version 1.1;
+  namespace 'http://bjtunercant.com/user-security-intent';
+  prefix usi;
+
+  revision 2023-10-24{
+    description "Second revision. The user security intent.";
+  }
+
+  list UserSecurityIntent{
+    key "Iid";
+    description "This a list of the user security intent.";
+    leaf Iid{
+      type string;
+      description "The identification of the user security intent.";
+    }
+    container conditions{
+      leaf TimeInformation{
+        type string;
+        description "The time information in conditions.";
+      }
+      container DeviceRange{
+        leaf Source{
+          type string;
+          description "The source of the device range.";
+        }
+        leaf Destination{
+          type string;
+          description "The destination of the device range.";
+        }
+      }
+    }
+    leaf Object{
+      type string;
+      description "The object of the user security intent.";
+    }
+    leaf Action{
+      type string;
+      description "The action of the user security intent.";
+    }
+    leaf SLR{
+      type uint8;
+      description "The security level requirement of the user security intent.";
+    }
+  }
+}

@@ -1,0 +1,11 @@
+module: security-capability-requirement
+  +--rw SecurityCapabilityRequirement* [Iid]
+     +--rw Iid           string
+     +--rw conditions
+     |  +--rw TimeInformation?   string
+     |  +--rw DeviceRange
+     |     +--rw Source?        string
+     |     +--rw Destination?   string
+     +--rw SLR?          uint8
+     +--rw SCs
+        +--rw SC?   string

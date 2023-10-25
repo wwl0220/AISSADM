@@ -1,0 +1,151 @@
+module monitering-interface{
+  yang-version 1.1;
+  namespace 'http://bjtunercant.com/monitering-interface';
+  prefix mi;
+
+  import ietf-inet-types{
+    prefix inet;
+    reference "RFC 6991";
+  }
+
+  revision 2023-10-25{
+    description "Second revision. The monitoring interface.";
+  }
+
+  notification substrate-network-topology{
+    description "Notification for substrate network topology";
+    list substrate-node{
+      key "label";
+      description "The substrate node information.";
+      leaf label{
+        type string;
+        description "The substrate node label.";
+      }
+      leaf ip{
+        type inet:ipv4-address-no-zone;
+        description "The IP address of the substrate node.";
+      }
+    }
+    list substrate-link{
+      key "label";
+      description "The substrate link information.";
+      leaf label{
+        type string;
+        description "The substrate link label.";
+      }
+      leaf link-start{
+        type inet:ipv4-address-no-zone;
+        description "The IP address of the start of the substrate node.";
+      }
+      leaf link-end{
+        type inet:ipv4-address-no-zone;
+        description "The IP address of the end of the substrate node.";
+      }
+    }
+  }
+
+  notification substrate-network-resource{
+    description "Notification for substrate network resource";
+    list computing-resource{
+      key "label";
+      description "The computing resource information of the function node.";
+      leaf label{
+        type string;
+        description "The substrate node label.";
+      }
+      leaf type{
+        type string;
+        description "The computing resource type, such as CPU, GPU, etc.";
+      }
+      leaf freq{
+        type uint64;
+        units "MHz";
+        description "The cycles per second in MHz.";
+      }
+      leaf max-usage{
+        type uint8;
+        units "percent";
+        description "The max usage for an AISF in percentage.";
+      }
+    }
+    list bandwidth{
+      key "label";
+      description "The bandwidth resource information of the substrate link.";
+      leaf label{
+        type string;
+        description "The substrate link label.";
+      }
+      leaf bw{
+        type uint64;
+        units "Mbit/s";
+        description "The bandwidth of the substrate link.";
+      }
+    }
+  }
+
+  notification substrate-network-status{
+    list device{
+      key "label";
+      description "The communication statistics of the device.";
+      leaf label{
+        type string;
+        description "The device label.";
+      }
+      leaf IP{
+        type inet:ipv4-address-no-zone;
+        description "The IP address of the device.";
+      }
+      leaf destination{
+        type inet:ipv4-address-no-zone;
+        description "The destination the device communicate with.";
+      }
+      leaf average-packet-length{
+        type decimal64{
+            fraction-digits 2;
+        }
+        units "bits";
+        description "The average length of packets from the device.";
+      }
+      leaf peak-traffic-rate{
+        type decimal64{
+            fraction-digits 2;
+        }
+        units "Mbit/s";
+        description "The peak traffic rate of the device.";
+      }
+      leaf average-packet-per-flow{
+        type decimal64{
+            fraction-digits 2;
+        }
+        description "The average packet per flow of the device.";
+      }
+    }
+  }
+
+  notification aisf-event{
+    list inference-result{
+      key "label";
+      description "The inference result of the AISF instance.";
+      leaf label{
+        type string;
+        description "The AISF identification and IP address of the AISF instance.";
+      }
+      leaf result{
+        type string;
+        description "The inference result.";
+      }
+    }
+    list running-status{
+      key "label";
+      description "The running status of the AISF instance.";
+      leaf label{
+        type string;
+        description "The AISF identification and IP address of the AISF instance.";
+      }
+      leaf status{
+        type string;
+        description "The running status.";
+      }
+    }
+  }
+}

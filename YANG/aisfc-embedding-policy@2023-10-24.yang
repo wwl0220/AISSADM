@@ -1,0 +1,79 @@
+module aisfc-embedding-policy{
+  yang-version 1.1;
+  namespace 'http://bjtunercant.com/aisfc-embedding-policy';
+  prefix aisfcep;
+
+  import ietf-inet-types{
+    prefix inet;
+    reference "RFC 6991";
+  }
+
+  revision 2023-10-24{
+    description "Second revision. The AISFC embedding policy.";
+  }
+
+  list AISFCEmbeddingPolicy{
+    key "Iid";
+    description "This a list of the user security intent.";
+    leaf Iid{
+      type string;
+      description "The identification of the user security intent.";
+    }
+    container conditions{
+      leaf TimeInformation{
+        type string;
+        description "The time information in conditions.";
+      }
+      container DeviceRange{
+        leaf Source{
+          type inet:ipv4-address-no-zone;
+          description "The source of the device range.";
+        }
+        leaf Destination{
+          type inet:ipv4-address-no-zone;
+          description "The destination of the device range.";
+        }
+      }
+    }
+    container NEmbedding{
+      leaf Ingress{
+        type inet:ipv4-address-no-zone;
+        description "The ingress node of the AISFC.";
+      }
+      container AISF{
+        leaf AISFid{
+          type string;
+          description "The AISF identification.";
+        }
+        leaf Modelid{
+          type string;
+          description "The AISF model identification.";
+        }
+        leaf Order{
+          type uint8;
+          description "The AISF order.";
+        }
+        leaf IPv4{
+          type inet:ipv4-address-no-zone;
+          description "The function node IP address.";
+        }
+      }
+      leaf Egress{
+        type inet:ipv4-address-no-zone;
+        description "The egress node of the AISFC.";
+      }
+    }
+    container LEmbedding{
+      container Path{
+        leaf IPv4{
+          type inet:ipv4-address-no-zone;
+          description "The passing node IP address.";
+        }
+        leaf Order{
+          type uint8;
+          description "The path order.";
+        }
+      }
+    }
+  }
+}

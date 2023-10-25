@@ -1,0 +1,43 @@
+module security-capability-requirement{
+  yang-version 1.1;
+  namespace 'http://bjtunercant.com/security-capability-requirement';
+  prefix scr;
+
+  revision 2023-10-24{
+    description "Second revision. The required-security-capability.";
+  }
+
+  list SecurityCapabilityRequirement{
+    key "Iid";
+    leaf Iid{
+      type string;
+      description "The identification of the user security intent.";
+    }
+    container conditions{
+      leaf TimeInformation{
+        type string;
+        description "The time information in conditions.";
+      }
+      container DeviceRange{
+        leaf Source{
+          type string;
+          description "The source of the device range.";
+        }
+        leaf Destination{
+          type string;
+          description "The destination of the device range.";
+        }
+      }
+    }
+    leaf SLR{
+      type uint8;
+      description "The security level requirement of the user security intent.";
+    }
+    container SCs{
+      leaf SC{
+        type string;
+        description "The security capability of the security capability requirement.";
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+module: aisfc-embedding-policy
+  +--rw AISFCEmbeddingPolicy* [Iid]
+     +--rw Iid           string
+     +--rw conditions
+     |  +--rw TimeInformation?   string
+     |  +--rw DeviceRange
+     |     +--rw Source?        inet:ipv4-address-no-zone
+     |     +--rw Destination?   inet:ipv4-address-no-zone
+     +--rw NEmbedding
+     |  +--rw Ingress?   inet:ipv4-address-no-zone
+     |  +--rw AISF
+     |  |  +--rw AISFid?    string
+     |  |  +--rw Modelid?   string
+     |  |  +--rw Order?     uint8
+     |  |  +--rw IPv4?      inet:ipv4-address-no-zone
+     |  +--rw Egress?    inet:ipv4-address-no-zone
+     +--rw LEmbedding
+        +--rw Path
+           +--rw IPv4?    inet:ipv4-address-no-zone
+           +--rw Order?   uint8

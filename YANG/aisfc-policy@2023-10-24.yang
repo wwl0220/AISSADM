@@ -1,0 +1,67 @@
+module aisfc-policy{
+  yang-version 1.1;
+  namespace 'http://bjtunercant.com/aisfc-policy';
+  prefix aisfcp;
+
+  revision 2023-10-24{
+    description "Second revision. The AISFC policy.";
+  }
+
+  list AISFCPolicy{
+    key "Iid";
+    leaf Iid{
+      type string;
+      description "The identification of the user security intent.";
+    }
+    container conditions{
+      leaf TimeInformation{
+        type string;
+        description "The time information in conditions.";
+      }
+      container DeviceRange{
+        leaf Source{
+          type string;
+          description "The source of the device range.";
+        }
+        leaf Destination{
+          type string;
+          description "The destination of the device range.";
+        }
+      }
+    }
+    container Chain{
+      leaf Ingress{
+        type string;
+        description "The ingress of the AISFC.";
+      }
+      container AISF{
+        leaf AISFid{
+          type string;
+          description "The AISF identification.";
+        }
+        leaf AISFa{
+          type string;
+          description "The AISF attribute.";
+        }
+        leaf Modelid{
+          type string;
+          description "The AISF model identification.";
+        }
+        leaf Workload{
+          type decimal64{
+            fraction-digits 2;
+          }
+          description "The AISF model workload.";
+        }
+        leaf Order{
+          type uint8;
+          description "The AISF order.";
+        }
+      }
+      leaf Egress{
+        type string;
+        description "The egress of the AISFC.";
+      }
+    }
+  }
+}
