@@ -1,0 +1,2917 @@
+I2NSF
+Internet Draft                                           W. Wang
+Intended status: Proposed Standard                       H. Zhou
+                                                           M. Li
+                                                           Q. Guo
+                                                           S. Deng
+Document: draft-wang-i2nsf-intelligent-detection-00.txt 
+                                                     Beijing Jiaotong
+                                                     University
+Expires: February 2023                           September 2022
+
+               YANG Data Models for Attacks Intelligent Detection
+
+Status of this Memo
+  This Internet-Draft is submitted in full conformance with the
+  provisions of BCP 78 and BCP 79.
+  Internet-Drafts are working documents of the Internet Engineering
+  Task Force (IETF). Note that other groups may also distribute working
+  documents as Internet-Drafts. The list of current Internet-Drafts is
+  at https://datatracker.ietf.org/drafts/current/.
+
+  Internet-Drafts are draft documents valid for a maximum of six months
+  and may be updated, replaced, or obsoleted by other documents at any
+  time. It is inappropriate to use Internet-Drafts as reference
+  material or to cite them other than as "work in progress."
+
+Abstract
+  This document describes how to extend the Interface to Network
+  Security Function (I2NSF) framework to make it suitable for attacks
+  intelligent detection. Intelligent detection means that the network
+  can dynamically adjust detection policies based on resource status,
+  traffic features, or detection results. This document describes the
+  application of I2NSF Framework for Security Management Automation
+  (SMA) for attacks intelligent detection in Software-Defined
+  Networking (SDN) and Service Function Chaining (SFC) environment.
+  This document will extend the YANG data model of Monitoring
+  Interface, Analytics Interface and NSF-Facing Interface in I2NSF for
+  SMA framework to make it suitable for attacks intelligent detection
+  in SDN and SFC environments.
+
+Copyright Notice
+
+
+Wang, et al.              Expires – February 2023              [Page 1]
+                     I2NSF Intelligent Detection        September 2022
+
+   Copyright (c) 2022 IETF Trust and the persons identified as the
+   document authors. All rights reserved.
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your
+   rights and restrictions with respect to this document. Code 
+   Components extracted from this document must include Revised 
+   BSD License text as described in Section 4.e of the Trust Legal
+   Provisions and are provided without warranty as described in the 
+   Revised BSD License.
+
+Table of Contents
+   1. Introduction...................................................2
+   2. Terminology....................................................3
+   3. I2NSF Framework for Attacks Intelligent Detection..............4
+      3.1 Components with I2NSF Framework for AID....................4
+      3.2 Interfaces with I2NSF Framework for AID....................6
+   4. The Extended YANG Data Models..................................6
+      4.1 The Extended Monitoring Interface..........................6
+         4.1.1 YANG Tree Structure of Extended Monitoring
+               Interface.............................................9
+         4.1.2 YANG Data Model of Extended Monitoring
+               Interface............................................11
+      4.2 The Extended Analytics Interface..........................29
+         4.2.1 YANG Tree Structure of Extended Analytics
+               Interface............................................30
+         4.2.2 YANG Data Model of Extended Analytics Interface .....31
+      4.3 The Extended NSF-Facing Interface.........................45
+         4.3.1 YANG Tree Structure of Extended NSF-Facing YANG
+               Module...............................................45
+         4.3.2 YANG Data Model of Extended NSF-Facing YANG
+               Module .......   ....................................46
+   5. XML Examples of I2NSF Framework for AID.......................49
+   6. IANA Considerations...........................................54
+   7. Security Considerations.......................................54
+   8. References....................................................54
+      8.1 Normative References......................................54
+      8.2 Informative References....................................58
+   Acknowledgments..................................................59
+   Author's Addresses...............................................59
+
+1. Introduction
+   I2NSF defines the framework and interface for interacting with NSFs
+   [RFC8192] [RFC8329]. It is centered on the Security Controller and
+
+Wang, et al.            Expires – February 2023              [Page 2]
+                     I2NSF Intelligent Detection        September 2022
+
+   implements consumer-facing NSFs management and configuration through
+   Consumer-Facing Interface and NSF-Facing Interface. I2NSF Framework
+   for Security Management Automation has added new components I2NSF
+   Analyzer, new interface Monitoring Interface and Analytics Interface,
+   which enable it to achieve feedback based automatic security
+   management [I-D. jeong-i2nsf-security-management-automation].
+   SDN relocates the control of network resources to a dedicated network
+   element, namely SDN Controller, which provides a means to program,
+   orchestrate, control and manage the network resources through
+   software [ITU-TY.3300]. SFC [RFC7665] is a technique for ordering
+   packets through different service functions. The SDN Controller can
+   manage the SFC. The SDN Controller can send traffic tables to the SFC
+   Classifiers (CFs) and Service Function Forwarder (SFFs), so that
+   different traffic passes through different Service Function Paths
+   (SFPs) according to different traffic table forwarding rules. I2NSF
+   can be combined with SDN and SFC [I-D. ietf-i2nsf-applicability]. The
+   application of SDN and SFC technology in I2NSF can provide more
+   flexible NSFs combination for I2NSF User.
+   NSF can provide a range of security-related services, such as
+   detecting, blocking, or mitigating cyber-attacks [RFC8329]. The NSFs
+   referred in this document specifically refers to NSFs with the
+   capability to detect attacks, which are called Detection Modules
+   (DMs). Different detection modules apply to different types of
+   attacks, such as Distributed Denial of service (DDoS) attacks, worm
+   attacks and so on. Detection modules can form different SFPs in SDN
+   and SFC environments. Traffic with different features, such as
+   protocols or port numbers, passes through different paths to improve
+   network detection efficiency and reduce NSFs load and traffic
+   transmission delay.
+   This document will design extended YANG data models for Monitoring
+   Interface, Analytics Interface and NSF-Facing Interface in I2NSF
+   Framework for Security Management Automation. The I2NSF Analyzer can
+   collect network resource information, traffic features, and detection
+   results through the Extended Monitoring Interface. The I2NSF Analyzer
+   can send resource alarms, detection results, and path reconfiguration
+   policies to the Security Controller through the Extended Analytics
+   Interface. The Security Controller can send the path configuration
+   rules to the SDN Controller through the Extended NSF-facing
+   Interface. The extended framework can realize closed-loop feedback
+   based dynamic adjustment of attack detection policies in SDN and 
+   SFC environment.
+
+2. Terminology
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+
+Wang, et al.            Expires – February 2023              [Page 3]
+                      I2NSF Intelligent Detection        September 2022
+
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+   This document uses the terminology described in [RFC8329], [I-D.
+   jeong-i2nsf-security-management-automation], [RFC7665], [ITU-TY.3300]
+   and [RFC8455]. In addition, the following terms are defined below:
+   o   Intelligent Detection: The network can dynamically adjust
+       detection policies based on the feedback resource status, traffic
+       features, and detection results.
+   o   Detection Module (DM): The NSF with detection capability.
+       Different DMs apply to different types of attacks, such as DDoS
+       attacks, worm attacks and so on.
+
+3. I2NSF Framework for Attacks Intelligent Detection
+   This section summarizes the I2NSF Framework for Attacks Intelligent
+   Detection (I2NSF Framework for AID) in SDN and SFC environment. As
+   shown in Figure 1, The Security Controller and I2NSF Analyzer
+   implement closed-loop automatic management of SDN controller,
+   CFs/SFFs and DMs through Monitoring Interface, Analytics Interface
+   and NSF-Facing Interface.
+
+3.1 Components with I2NSF Framework for AID
+   The following are the system components for the I2NSF framework for
+   AID.
+  o I2NSF User: An entity that delivers a high-level security policy to
+    Security Controller [RFC8329].
+  o Security Controller: An entity that controls and manages other
+    system components in the I2NSF framework. It translates a high-
+    level security policy (from I2NSF User) or reconfiguration policy
+    (from I2NSF Analyzer) into the corresponding low-level security
+    policy. It selects appropriate NSFs (including DMs, SDN Controller,
+    CFs and SFFs) to execute the security rules of the low-level
+    security policy [RFC8329].
+
+  o Developer's Management System (DMS): An entity that provides an
+  image of a virtualized NSF for a security service to the I2NSF
+  framework, and registers the capability and access information of
+  an NSF with Security Controller [RFC8329].
+
+
+
+Wang, et al.             Expires – February 2023              [Page 4]
+                    I2NSF Intelligent Detection        September 2022
+
+  o I2NSF Analyzer: An entity that collects monitoring data from NSFs
+   and analyzes such data for checking the activity and performance
+   of the NSFs. If there is a suspicious attack activity for the
+   target network or NSF, I2NSF Analyzer delivers a report of the
+   augmentation or generation of reconfiguration policy to Security
+   Controller [I-D. jeong-i2nsf-security-management-automation].
+          +----------+
+          |I2NSF User|
+          +----------+
+                ^
+                | Consumer-Facing Interface
+                v
+    +-------------------+     Registration  +-----------------------+
+    |Security Controller|<----------------> |Developer's Mgmt System|
+    +-------------------+     Interface     +-----------------------+
+      ^            ^ ^
+      |            | |
+      |            | | Analytics Interface  +--------------+
+      |            | +--------------------->|I2NSF Analyzer|
+      |NSF-Facing  |                        +--------------+
+      |Interface   +-------+ NSF-Facing          ^ Monitoring
+      |                    | Interface           | Interface
+  +-----------------------------------------------------------+
+  |   v                    |                     v            |
+  | +--------------+       |                                  |
+  | |SDN Controller|       |                                  |
+  | +--------------+       |                                  |
+  |     ^                  |                                  |
+  |     | SDN Southbound   |                                  |
+  |     | Interface        |                                  |
+  |     v                  |                                  |
+  | +--------------+       v                                  |
+  | | +----------+ |----------------------------------+       |
+  | | |Classifier| |       |         |                |       |
+  | | +----------+ |       v         v                v       |
+  | |   +-----+    |   +------+ +------+           +------+   |
+  | |   | SFF |    |   | DM-1 | | DM-2 |    ...    | DM-n |   |
+  | |   +-----+    |   +------+ +------+           +------+   |
+  | +--------------+                                          |
+  +-----------------------------------------------------------+
+       Figure 1: I2NSF Framework for Attacks Intelligent Detection
+  o SDN Controller: An entity that provides a means to program,
+  orchestrate, control and manage the network resources through
+  software. It can parse path rules of the low-level security policy
+  and deliver flow tables to CFs and SFFs to form SFPs [ITU-TY.3300].
+
+
+Wang, et al.           Expires – February 2023              [Page 5]
+                      I2NSF Intelligent Detection        September 2022
+
+
+
+ o Detection Module (DM): The NSF with detection capability.
+
+3.2 Interfaces with I2NSF Framework for AID
+   The following are the interfaces for the AID I2NSF framework. Note
+   that the interfaces are modeled with YANG [RFC6020] and security
+   policies are delivered through either RESTCONF [RFC8040] or NETCONF
+   [RFC6241].
+  o Consumer-Facing Interface: An interface between I2NSF User and
+    Security Controller for the delivery of a high-level security
+    policy [RFC8329].
+  o NSF-Facing Interface: An interface between Security Controller and
+   an NSF for the delivery of a low-level security policy [RFC8329].
+
+  o Registration Interface: An interface between a DMS and Security
+   Controller for the registration of an NSF's capability and access
+   information with Security Controller or the query of an NSF for a
+   required low-level security policy [RFC8329].
+
+  o Analytics Interface: An interface to deliver an analytics report
+  for augmentation or generation of a security policy rule created
+  by I2NSF Analyzer to Security Controller [I-D. jeong-i2nsf-
+      security-management-automation].
+
+  o SDN Southbound Interface: The application programming interface
+  provided by the SDN Controller to interact with the SDN nodes
+  [RFC8455].
+
+4. The Extended YANG Data Models
+   This section describes the extended Monitoring Interface, Analytics
+   Interface and NSF-Facing Interface YANG data model.
+
+4.1 The Extended Monitoring Interface
+   This section describes the Extended Monitoring Interface. This
+   document modifies or adds traffic features, resource utilization
+   logs, and DM detection results for Monitoring Interface.
+   Traffic features contain the following information:
+
+
+
+
+Wang, et al.             Expires – February 2023              [Page 6]
+                    I2NSF Intelligent Detection        September 2022
+
+  o measurement-time: The duration of the measurement in seconds for
+     the features of traffic flows. These traffic flow features are
+     measured over the past measurement duration before now.
+  o packets-per-second: Average number of packets forwarded per second
+     measured over the past 'measurement-time'.
+
+  o bytes-per-second: Average number of bytes forwarded per second
+     measured over the past 'measurement-time'.
+
+  o packet-size-mean: Average packet length of packets measured over
+     the past 'measurement-time'.
+
+  o src-ip-entropy: Entropy of the source IP address measured over the
+     past 'measurement-time'.
+
+  o dst-ip-entropy: The entropy of the destination IP address measured
+     over the past 'measurement-time'.
+
+  o TTL-entropy: Packet lifetime TTL entropy measured over the past
+     'measurement-time'.
+
+  o tcp-src-port-entropy: TCP Packet source port entropy measured over
+     the past 'measurement-time'.
+
+  o tcp-dst-port-entropy: TCP Packet destination port entropy measured
+     over the past 'measurement-time'.
+
+  o udp-src-port-entropy: UDP Packet source port entropy measured over
+     the past 'measurement-time'.
+
+  o udp-dst-port-entropy: UDP Packet destination port entropy measured
+     over the past 'measurement-time'.
+
+  o packet-size-entropy: The entropy of packet length measured over the
+     past 'measurement-time'.
+
+  o packets-variance: Variance of packets measured over the past
+     'measurement-time'.
+  Resource utilization logs contain the following information:
+
+  o system-status: The current system's running status [I-D. ietf-
+     i2nsf-nsf-monitoring-data-model].
+
+  o cpu-usage: Specifies the aggregated CPU usage in percentage [I-D.
+     ietf-i2nsf-nsf-monitoring-data-model].
+
+
+Wang, et al.           Expires – February 2023              [Page 7]
+                    I2NSF Intelligent Detection        September 2022
+
+
+
+  o cpu-freq: Specifies the frequency of CPU in MHz.
+
+  o memory-usage: Specifies the MB of memory usage.
+
+  o memory-total: Specifies the MB of total memory.
+
+  o memory-available: Specifies the MB of available memory.
+
+  o disk-id: The ID of the storage disk. It is a free form identifier
+     to identify the storage disk [I-D. ietf-i2nsf-nsf-monitoring-data-
+     model].
+
+  o disk-usage: Specifies the percentage of disk usage [I-D. ietf-
+     i2nsf-nsf-monitoring-data-model].
+
+  o disk-space-left: Specifies the available disk space left of disk-id
+     in percentage [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+  o interface-id: Specifies the interface ID to identify the network
+     interface [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+  o in-traffic-rate: The total inbound data plane traffic rate in
+     packets per second [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+  o out-traffic-rate: The total outbound data plane traffic rate in
+     packets per second [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+  o in-traffic-throughput: The total inbound data plane traffic
+     throughput in bytes per second [I-D. ietf-i2nsf-nsf-monitoring-
+     data-model].
+
+  o out-traffic-throughput: The total outbound data plane traffic
+     throughput in bytes per second[I-D. ietf-i2nsf-nsf-monitoring-
+     data-model].
+
+  o packet-loss-rate: The percentage of discarded packets.
+
+  The DM detection result contains the following information:
+ o detection-module-name: The name of the specific detection module.
+
+ o time-stamp: Specify the time of a message being delivered.
+
+ o response-time: The time taken for the detection.
+
+Wang, et al.           Expires – February 2023                 [Page 8]
+                     I2NSF Intelligent Detection         September 2022
+
+ o start-time: The start time for the detection.
+
+ o end-time: The end time for the detection.
+
+ o attack-id: The ID of the specific attack traffic which has the same
+    src/dst IP, protocol and attack type.
+
+ o attack-type: The type of the detected attack.
+
+ o attack-src-ip: The source IPv4 or IPv6 addresses of attack traffic.
+
+ o attack-dst-ip: The destination IPv4 or IPv6 addresses of attack
+    traffic.
+
+ o attack-src-port: The transport-layer source ports of the attack. It
+    can hold multiple ports.
+
+ o attack-dst-port: The transport-layer destination ports of the
+    attack. It can hold multiple ports.
+
+ o protocol: The type of network protocol for the attack.
+
+ o attack-rate: The average packets per second (pps) rate of attack
+    traffic [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+ o attack-throughput: The average bytes per second (Bps) throughput of
+    attack traffic [I-D. ietf-i2nsf-nsf-monitoring-data-model].
+
+
+
+4.1.1 YANG Tree Structure of Extended Monitoring Interface
+
+   The tree structure of the Extended Monitoring Interface is provided
+   below:
+   module: wang-i2nsf-extended-monitoring-interface
+     notifications:
+      +---n i2nsf-event
+      | +--ro vendor-name?                           string
+      | +--ro device-model?                          string
+      | +--ro software-version?                      string
+      | +--ro nsf-name                               union
+      | +--ro message?                               string
+      | +--ro language?                              string
+      | +--ro acquisition-method?                    identityref
+
+
+Wang, et al.            Expires – February 2023               [Page 9]
+                     I2NSF Intelligent Detection         September 2022
+
+      | +--ro emission-type?                           identityref
+      | +--ro dampening-type?                          identityref
+      | +--ro (sub-event-type)?
+      |     +--:(i2nsf-flow-features)
+      |        +--ro i2nsf-traffic-flow-features
+      |           +--ro measurement-time?         uint32
+      |           +--ro packets-per-second?       uint64
+      |           +--ro bytes-per-second?         uint64
+      |           +--ro packet-size-mean?         uint64
+      |           +--ro src-ip-entropy?           uint64
+      |           +--ro dst-ip-entropy?           uint64
+      |           +--ro TTL-entropy?              uint64
+      |           +--ro tcp-src-port-entropy?     uint64
+      |           +--ro tcp-dst-port-entropy?     uint64
+      |           +--ro udp-src-port-entropy?     uint64
+      |           +--ro udp-dst-port-entropy?     uint64
+      |           +--ro packet-size-entropy?      uint64
+      |           +--ro packets-variance?         uint64
+      +---n i2nsf-log
+      | +--ro vendor-name?                           string
+      | +--ro device-model?                          string
+      | +--ro software-version?                      string
+      | +--ro nsf-name                               union
+      | +--ro message?                               string
+      | +--ro language?                              string
+      | +--ro acquisition-method?  identityref
+      | +--ro emission-type?          identityref
+      | +--ro dampening-type?     identityref
+      | +--ro (sub-logs-type)?
+      |     +--:(i2nsf-system-res-util-log)
+      |        +--ro i2nsf-system-res-util-log
+      |           +--ro system-status?        enumeration
+      |           +--ro cpu-usage?            uint8
+      |           +--ro cpu-freq?             uint64
+      |           +--ro memory-usage?         uint64
+      |           +--ro memory-total?         uint64
+      |           +--ro memory-available?     uint64
+      |           +--ro disks* [disk-id]
+      |           | +--ro disk-id               string
+      |           | +--ro disk-usage?           uint8
+      |           | +--ro disk-space-left?      uint8
+      |           +--ro interface* [interface-id]
+      |               +--ro interface-id                string
+      |               +--ro in-traffic-rate?            uint64
+      |               +--ro out-traffic-rate?           uint64
+      |               +--ro in-traffic-throughput?      uint64
+      |               +--ro out-traffic-throughput?     uint64
+      |               +--ro packet-loss-rate?           uint64
+      +---n i2nsf-nsf-event
+
+Wang, et al.           Expires – February 2023               [Page 10]
+                        I2NSF Intelligent Detection          September 2022
+
+         +--ro vendor-name?                              string
+         +--ro device-model?                             string
+         +--ro software-version?                         string
+         +--ro nsf-name                                  union
+         +--ro message?                                  string
+         +--ro language?                                 string
+         +--ro acquisition-method?                       identityref
+         +--ro emission-type?                            identityref
+         +--ro dampening-type?                           identityref
+         +--ro (sub-event-type)?
+           +--:(i2nsf-nsf-detection-module)
+               +--ro i2nsf-nsf-detection-module
+                  +--ro detection-module* [detection-module-name]
+                     +--ro detection-module-name     string
+                     +--ro time-stamp?        yang:date-and-time
+                     +--ro response-time?    yang:date-and-time
+                     +--ro start-time?           yang:date-and-time
+                     +--ro end-time?            yang:date-and-time
+                     +--ro detected-attacks
+                       +--ro attack-traffic* [attack-id]
+                         +--ro attack-id            string
+                         +--ro attack-type          string
+                         +--ro attack-src-ip? inet:ip-address-no-zone
+                         +--ro attack-dst-ip? inet:ip-address-no-zone
+                         +--ro attack-src-port* inet:port-number
+                         +--ro attack-dst-port* inet:port-number
+                         +--ro protocol?  identityref
+                         +--ro attack-rate?  uint64
+                         +--ro attack-throughput?  uint64
+      Figure 2: YANG Tree Structure of Extended Monitoring Interface
+
+
+
+4.1.2 YANG Data Model of Extended Monitoring Interface
+
+   This section describes a YANG module of I2NSF Extended Monitoring
+   Interface. This YANG module imports from [RFC6991], and makes
+   references to [I-D. ietf-i2nsf-nsf-monitoring-data-model] [RFC0768]
+   [RFC0791] [RFC0792] [RFC0854] [RFC1939] [RFC0959] [RFC2595]
+   [RFC4340] [RFC4443] [RFC5321] [RFC5646] [RFC6242] [RFC8200]
+   [RFC8641] [RFC9051] [RFC9110] [RFC9112] [RFC9113] [RFC9260] 
+   [RFC9293].
+   <CODE BEGINS> file "wang-i2nsf-extended-monitoring-interface@2022-
+   09-21.yang"
+   module wang-i2nsf-extended-monitoring-interface{
+
+
+Wang, et al.               Expires – February 2023               [Page 11]
+                     I2NSF Intelligent Detection          September 2022
+
+    yang-version 1.1;
+    namespace
+      "urn:ietf:params:xml:ns:yang:wang-i2nsf-extended-
+           monitoring-interface";
+    prefix i2nsf-exmi;
+    import ietf-inet-types{
+      prefix inet;
+      reference "Section 4 of RFC 6991";
+    }
+    import ietf-yang-types{
+      prefix yang;
+      reference "Section 3 of RFC 6991";
+    }
+    organization
+      "IETF I2NSF (Interface to Network Security Functions)
+       Working Group";
+    contact
+      "WG Web: <https://datatracker.ietf.org/wg/i2nsf>
+       WG List: <mailto:i2nsf@ietf.org>
+       Author:   Weilin Wang
+                 <mailto:21111026@bjtu.edu.cn>
+       Author:   Huachun Zhou
+                 <mailto:hchzhou@bjtu.edu.cn>
+       Author:   Man Li
+                 <mailto:20111018@bjtu.edu.cn>
+       Author:   Qi Guo
+                 <mailto:20120044@bjtu.edu.cn>
+       Author:   Shuangxing Deng
+                 <mailto:21120038@bjtu.edu.cn>
+       Author:   Kun Li
+                 <mailto:19111021@bjtu.edu.cn>";
+    description
+      "This module is a YANG module for the extension of I2NSF
+       NSF Monitoring.
+      The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
+      'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
+      'NOT RECOMMENDED', 'MAY', and 'OPTIONAL' in this
+      document are to be interpreted as described in BCP 14
+      (RFC 2119) (RFC 8174) when, and only when, they appear
+
+Wang, et al.           Expires – February 2023                [Page 12]
+                    I2NSF Intelligent Detection        September 2022
+
+      in all capitals, as shown here.
+      Copyright (c) 2022 IETF Trust and the persons identified as
+      authors of the code. All rights reserved.
+      Redistribution and use in source and binary forms, with or
+      without modification, is permitted pursuant to, and subject
+      to the license terms contained in, the Revised BSD License
+      set forth in Section 4.c of the IETF Trust's
+      Legal Provisions Relating to IETF Documents
+      (https://trustee.ietf.org/license-info).
+      This version of this YANG module is part of RFC XXXX
+      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
+      for full legal notices.";
+    revision "2022-09-15" {
+      description "Initial revision.";
+      reference
+        "RFC XXXX: Extension of I2NSF NSF Monitoring Interface
+         YANG Data Model";
+    }
+  /*
+   * Identity
+   */
+     identity characteristics {
+       description
+         "Base identity for monitoring information
+         characteristics.";
+       reference
+         "I-D: I2NSF NSF Monitoring Interface YANG Data Model";
+     }
+     identity acquisition-method {
+       base characteristics;
+       description
+         "The type of acquisition-method. It can be multiple
+         types at once.";
+     }
+     identity subscription {
+       base acquisition-method;
+       description
+         "The acquisition-method type is subscription.";
+     }
+     identity query {
+       base acquisition-method;
+       description
+         "The acquisition-method type is query.";
+     }
+
+Wang, et al.           Expires – February 2023             [Page 13]
+                    I2NSF Intelligent Detection        September 2022
+    identity emission-type {
+      base characteristics;
+      description
+        "The type of emission-type.";
+    }
+    identity periodic {
+      base emission-type;
+      description
+        "The emission-type type is periodic.";
+    }
+    identity on-change {
+      base emission-type;
+      description
+        "The emission-type type is on-change.";
+    }
+    identity dampening-type {
+      base characteristics;
+      description
+        "The type of message dampening to stop the rapid
+         transmission of messages, such as on-repetition
+         and no-dampening.";
+    }
+    identity no-dampening {
+      base dampening-type;
+      description
+        "The dampening-type is no-dampening. No-dampening
+         type does not limit the transmission for the
+         messages of the same type.";
+    }
+    identity on-repetition {
+      base dampening-type;
+      description
+        "The dampening-type is on-repetition. On-repetition
+         type limits the transmitted on-change message to one
+         message at a certain interval.";
+    }
+    identity protocol {
+      description
+        "An identity used to enable type choices in leaves
+         and leaf-lists with respect to protocol metadata.
+         This is used to identify the type of protocol that
+         goes through the NSF.";
+    }
+    identity ip {
+      base protocol;
+      description
+        "General IP protocol type.";
+      reference
+        "RFC0791: Internet Protocol
+
+Wang, et al.           Expires – February 2023             [Page 14]
+                    I2NSF Intelligent Detection        September 2022
+
+         RFC8200: Internet Protocol, Version 6 (IPv6)";
+    }
+    identity ipv4 {
+      base ip;
+      description
+        "IPv4 protocol type.";
+      reference
+        "RFC0791: Internet Protocol";
+    }
+    identity ipv6 {
+      base ip;
+      description
+        "IPv6 protocol type.";
+      reference
+        "RFC8200: Internet Protocol, Version 6 (IPv6)";
+    }
+    identity icmp {
+      base protocol;
+      description
+        "Base identity for ICMPv4 and ICMPv6 condition
+         capability";
+      reference
+        "RFC0792: Internet Control Message Protocol
+         RFC4443: Internet Control Message Protocol (ICMPv6)
+         for the Internet Protocol Version 6 (IPv6)
+         Specification- ICMPv6";
+    }
+    identity icmpv4 {
+      base icmp;
+      description
+        "ICMPv4 protocol type.";
+      reference
+        "RFC0791: Internet Protocol
+         RFC0792: Internet Control Message Protocol";
+    }
+    identity icmpv6 {
+      base icmp;
+      description
+        "ICMPv6 protocol type.";
+      reference
+        "RFC8200: Internet Protocol, Version 6 (IPv6)
+         RFC4443: Internet Control Message Protocol (ICMPv6)
+         for the Internet Protocol Version 6 (IPv6)
+         Specification";
+    }
+    identity transport-protocol {
+      base protocol;
+      description
+        "Base identity for Layer 4 protocol condition
+
+Wang, et al.           Expires – February 2023             [Page 15]
+                    I2NSF Intelligent Detection          September 2022
+
+         capabilities, e.g., TCP, UDP, SCTP, DCCP, and
+         ICMP.";
+    }
+    identity tcp {
+      base transport-protocol;
+      description
+        "TCP protocol type.";
+      reference
+        "[RFC9293]: Transmission Control
+         Protocol (TCP).";
+    }
+    identity udp {
+      base transport-protocol;
+      description
+        "UDP protocol type.";
+      reference
+        "RFC0768: User Datagram Protocol";
+    }
+    identity sctp {
+      base transport-protocol;
+      description
+        "Identity for SCTP condition capabilities";
+      reference
+        "RFC9260: Stream Control
+         Transmission Protocol";
+    }
+    identity dccp {
+      base transport-protocol;
+      description
+        "Identity for DCCP condition capabilities";
+      reference
+        "RFC4340: Datagram Congestion Control Protocol";
+    }
+    identity application-protocol {
+      base protocol;
+      description
+        "Base identity for Application protocol. Note that a
+        subset of application protocols (e.g., HTTP, HTTPS,
+        FTP, POP3, and IMAP) are handled in this YANG module,
+        rather than all the existing application protocols.";
+    }
+    identity http {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+         version 1.1 (HTTP/1.1).";
+      reference
+        "[RFC9110]: HTTP Semantics
+         [RFC9112]: HTTP/1.1";
+
+Wang, et al.           Expires – February 2023              [Page 16]
+                    I2NSF Intelligent Detection           September 2022
+    }
+    identity https {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+         version 1.1 (HTTP/1.1) over TLS.";
+      reference
+        "[RFC9110]: HTTP Semantics
+         [RFC9112]: HTTP/1.1";
+    }
+    identity http2 {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+         version 2 (HTTP/2).";
+      reference
+        "RFC9113: HTTP/2";
+    }
+    identity https2 {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+         version 2 (HTTP/2) over TLS.";
+      reference
+        "RFC9113: HTTP/2";
+    }
+    identity ftp {
+      base application-protocol;
+      description
+        "FTP protocol type.";
+      reference
+        "RFC0959: File Transfer Protocol";
+    }
+    identity ssh {
+      base application-protocol;
+      description
+        "SSH protocol type.";
+      reference
+        "RFC6242: Using the NETCONF Protocol over
+         Secure Shell (SSH)";
+    }
+    identity telnet {
+      base application-protocol;
+      description
+        "The identity for telnet.";
+      reference
+        "RFC0854: Telnet Protocol";
+    }
+    identity smtp {
+
+Wang, et al.          Expires – February 2023                [Page 17]
+                    I2NSF Intelligent Detection        September 2022
+
+      base application-protocol;
+      description
+        "The identity for smtp.";
+      reference
+        "RFC5321: Simple Mail Transfer Protocol (SMTP)";
+    }
+    identity pop3 {
+      base application-protocol;
+      description
+        "The identity for Post Office
+         Protocol 3 (POP3).";
+      reference
+        "RFC1939: Post Office Protocol - Version 3 
+         (POP3)";
+    }
+    identity pop3s {
+      base application-protocol;
+      description
+        "The identity for Post Office Protocol 3
+         (POP3) over TLS";
+      reference
+        "RFC1939: Post Office Protocol -Version 3(POP3)
+        RFC2595: Using TLS with IMAP, POP3 and ACAP";
+    }
+    identity imap {
+      base application-protocol;
+      description
+        "The identity for Internet Message Access
+         Protocol (IMAP).";
+      reference
+        "RFC9051: Internet Message Access Protocol
+         (IMAP) - Version 4rev2";
+    }
+    identity imaps {
+      base application-protocol;
+      description
+        "The identity for Internet Message Access
+         Protocol (IMAP) over TLS";
+      reference
+        "RFC9051: Internet Message Access Protocol
+                    (IMAP) - Version 4rev2
+         RFC2595: Using TLS with IMAP, POP3 and ACAP";
+    }
+  /*
+   * Grouping
+   */
+    grouping common-monitoring-data {
+      description
+
+Wang, et al.           Expires – February 2023               [Page 18]
+                    I2NSF Intelligent Detection           September 2022
+
+        "A set of common monitoring data that is needed
+        as the basic information.";
+      leaf vendor-name {
+        type string;
+        description
+          "The name of the NSF vendor. The string is
+           unrestricted to identify the provider or
+           vendor of the NSF.";
+      }
+      leaf device-model {
+        type string;
+        description
+          "The model of the device, can be represented
+           by the device model name or serial number.
+           This field is used to identify the model of
+           the device that provides the security
+           service.";
+      }
+      leaf software-version {
+        type string;
+        description
+          "The version of the software used to provide the
+          security service.";
+      }
+      leaf nsf-name {
+        type union{
+          type string;
+          type inet:ip-address-no-zone;
+        }
+        mandatory true;
+        description
+          "The name or IP address of the NSF generating
+           the message.If the given nsf-name is not an
+           IP address, the name can be an arbitrary string
+           including a FQDN (Fully Qualified Domain Name).
+           The name MUST be unique in the scope of
+           management domain for a different NSF to
+           identify the NSF that generates the message.";
+      }
+    }
+    grouping message {
+      description
+        "A set of common monitoring data that is needed
+        as the basic information.";
+      leaf message {
+        type string;
+        description
+          "This is a freetext annotation for
+          monitoring a notification's content.";
+Wang, et al.           Expires – February 2023               [Page 19]
+                    I2NSF Intelligent Detection        September 2022
+      }
+      leaf language {
+        type string {
+          pattern '((([A-Za-z]{2,3}(-[A-Za-z]{3}(-[A-Za-z]{3})'
+            + '{0,2})?)|[A-Za-z]{4}|[A-Za-z]{5,8})(-[A-Za-z]{4})?'
+            + '(-([A-Za-z]{2}|[0-9]{3}))?(-([A-Za-z0-9]{5,8}'
+            + '|([0-9][A-Za-z0-9]{3})))*(-[0-9A-WYZa-wyz]'
+            + '(-([A-Za-z0-9]{2,8}))+)*(-[Xx](-([A-Za-z0-9]'
+            + '{1,8}))+)?|[Xx](-([A-Za-z0-9]{1,8}))+|'
+            + '(([Ee][Nn]-[Gg][Bb]-[Oo][Ee][Dd]|[Ii]-'
+            + '[Aa][Mm][Ii]|[Ii]-[Bb][Nn][Nn]|[Ii]-'
+            + '[Dd][Ee][Ff][Aa][Uu][Ll][Tt]|[Ii]-'
+            + '[Ee][Nn][Oo][Cc][Hh][Ii][Aa][Nn]'
+            + '|[Ii]-[Hh][Aa][Kk]|'
+            + '[Ii]-[Kk][Ll][Ii][Nn][Gg][Oo][Nn]|'
+            + '[Ii]-[Ll][Uu][Xx]|[Ii]-[Mm][Ii][Nn][Gg][Oo]|'
+            + '[Ii]-[Nn][Aa][Vv][Aa][Jj][Oo]|[Ii]-[Pp][Ww][Nn]|'
+            + '[Ii]-[Tt][Aa][Oo]|[Ii]-[Tt][Aa][Yy]|'
+            + '[Ii]-[Tt][Ss][Uu]|[Ss][Gg][Nn]-[Bb][Ee]-[Ff][Rr]|'
+            + '[Ss][Gg][Nn]-[Bb][Ee]-[Nn][Ll]|[Ss][Gg][Nn]-'
+            + '[Cc][Hh]-[Dd][Ee])|([Aa][Rr][Tt]-'
+            + '[Ll][Oo][Jj][Bb][Aa][Nn]|[Cc][Ee][Ll]-'
+            + '[Gg][Aa][Uu][Ll][Ii][Ss][Hh]|'
+            + '[Nn][Oo]-[Bb][Oo][Kk]|[Nn][Oo]-'
+            + '[Nn][Yy][Nn]|[Zz][Hh]-[Gg][Uu][Oo][Yy][Uu]|'
+            + '[Zz][Hh]-[Hh][Aa][Kk][Kk][Aa]|[Zz][Hh]-'
+            + '[Mm][Ii][Nn]|[Zz][Hh]-[Mm][Ii][Nn]-'
+            + '[Nn][Aa][Nn]|[Zz][Hh]-[Xx][Ii][Aa][Nn][Gg])))';
+        }
+        default "en-US";
+        description
+          "The value in this field indicates the language tag
+          used for the human readable fields (i.e., '../message',
+          '/i2nsf-log/i2nsf-nsf-system-access-log/output', and
+          '/i2nsf-log/i2nsf-system-user-activity-log/additional-info
+          /cause').
+          The attribute is encoded following the rules in Section 2.1
+          in RFC 5646. The default language tag is 'en-US'";
+        reference
+          "RFC 5646: Tags for Identifying Languages.";
+      }
+    }
+    grouping characteristics {
+      description
+        "A set of characteristics of a monitoring information.";
+      leaf acquisition-method {
+        type identityref {
+          base acquisition-method;
+        }
+
+Wang, et al.           Expires – February 2023             [Page 20]
+                    I2NSF Intelligent Detection           September 2022
+
+        description
+          "The acquisition-method for characteristics";
+       }
+       leaf emission-type {
+         when "derived-from-or-self(../acquisition-method, "
+           + "'i2nsf-exmi:subscription')";
+         type identityref {
+           base emission-type;
+         }
+         description
+           "The emission-type for characteristics. This attribute is
+            used only when the acquisition-method is a
+  'subscription'.";
+       }
+     }
+     grouping characteristics-extended {
+       description
+         "An extended characteristics for the monitoring
+  information.";
+       uses characteristics;
+       leaf dampening-type {
+         type identityref {
+           base dampening-type;
+         }
+         description
+           "The dampening-type for characteristics";
+       }
+     }
+     grouping attack-rates {
+       description
+         "A set of traffic rates for monitoring attack traffic data.";
+       leaf attack-rate {
+         type uint64;
+         units "pps";
+         description
+           "The average packets per second (pps) rate of
+            attack traffic.";
+       }
+       leaf attack-throughput {
+         type uint64;
+         units "Bps";
+         description
+           "The average bytes per second (Bps) throughput of
+           attack traffic.";
+       }
+     }
+  /*
+   * Notification nodes
+   */
+
+Wang, et al.           Expires – February 2023               [Page 21]
+                    I2NSF Intelligent Detection        September 2022
+
+
+    notification i2nsf-event {
+      description
+        "Notification for I2NSF Event. This notification provides
+        general information that can be supported by most types of
+        NSFs.";
+      uses common-monitoring-data;
+      uses message;
+      uses characteristics-extended;
+      choice sub-event-type {
+        description
+          "This choice must be augmented with cases for each allowed
+          sub-event. Only 1 sub-event will be instantiated in each
+          i2nsf-event message. Each case is expected to define one
+          container with all the sub-event fields.";
+        case i2nsf-flow-features {
+          container i2nsf-traffic-flow-features {
+            description
+              "This notification is sent to inform about the traffic
+               flow features.";
+            leaf measurement-time {
+              type uint32;
+              units "seconds";
+              description
+                "The duration of the measurement in seconds
+                 for the features of traffic flows. These
+                 traffic flow features are measured over the
+                 past measurement duration before now.";
+            }
+            leaf packets-per-second {
+              type uint64;
+              description
+                "Average number of packets forwarded per
+                 second measured over the past 'measurement-time'.";
+            }
+            leaf bytes-per-second {
+              type uint64;
+              description
+                "Average number of bytes forwarded per second
+                 measured over the past 'measurement-time'.";
+            }
+            leaf packet-size-mean {
+              type uint64;
+              description
+                "Average packet length of packets measured over
+                the past 'measurement-time'.";
+            }
+
+Wang, et al.           Expires – February 2023             [Page 22]
+                       I2NSF Intelligent Detection        September 2022
+
+               leaf src-ip-entropy {
+                 type uint64;
+                 description
+                   "Entropy of the source IP address measured over
+                   the past 'measurement-time'.";
+               }
+               leaf dst-ip-entropy {
+                 type uint64;
+                 description
+                   "The entropy of the destination IP address
+                    measured over the past 'measurement-time'.";
+               }
+               leaf TTL-entropy {
+                 type uint64;
+                 description
+                   "Packet lifetime TTL entropy measured over
+                   the past 'measurement-time'.";
+               }
+               leaf tcp-src-port-entropy {
+                 type uint64;
+                 description
+                   "TCP Packet source port entropy measured
+                   over the past 'measurement-time'.";
+               }
+               leaf tcp-dst-port-entropy {
+                 type uint64;
+                 description
+                   "TCP Packet destination port entropy measured
+                   over the past 'measurement-time'.";
+               }
+               leaf udp-src-port-entropy {
+                 type uint64;
+                 description
+                   "UDP Packet source port entropy measured
+                   over the past 'measurement-time'.";
+               }
+               leaf udp-dst-port-entropy {
+                 type uint64;
+                 description
+                   "UDP Packet destination port entropy measured
+                   over the past 'measurement-time'.";
+               }
+               leaf packet-size-entropy {
+                 type uint64;
+                 description
+                   "The entropy of packet length measured over the
+                   past 'measurement-time'.";
+               }
+               leaf packets-variance {
+
+Wang, et al.             Expires – February 2023                [Page 23]
+                            I2NSF Intelligent Detection          September 2022
+
+                      type uint64;
+                      description
+                        "Variance of packets measured over the
+                         past 'measurement-time'.";
+                  }
+              }
+          }
+      }
+    }
+    notification i2nsf-log {
+      description
+        "Notification for I2NSF log. The notification
+        is generated from the logs of the NSF.";
+      uses common-monitoring-data;
+      uses message;
+      uses characteristics-extended;
+      choice sub-logs-type {
+        description
+          "This choice must be augmented with cases for each
+           allowed sub-logs. Only 1 sub-event will be
+           instantiated in each i2nsf-logs message. Each case
+           is expected to define one container with all the
+           sub-logs fields.";
+        case i2nsf-system-res-util-log {
+          container i2nsf-system-res-util-log {
+            description
+              "This notification is sent, if there is a new log
+              entry representing resource utilization updates.";
+            leaf system-status {
+              type enumeration {
+                enum running {
+                  description
+                    "The system is active and running the
+                     security service.";
+                }
+                enum waiting {
+                  description
+                    "The system is active but waiting for an
+                    event to provide the security service.";
+                }
+                enum inactive {
+                  description
+                    "The system is inactive and not running the
+                    security service.";
+                }
+              }
+              description
+
+Wang, et al.                  Expires – February 2023                 [Page 24]
+                       I2NSF Intelligent Detection        September 2022
+
+                   "The current system's running status.";
+               }
+               leaf cpu-usage {
+                 type uint8;
+                 units "percent";
+                 description
+                   "Specifies the aggregated CPU usage in 
+                     percentage.";
+               }
+               leaf cpu-freq {
+                 type uint64;
+                 units "MHz";
+                 description
+                   "Specifies the frequency of CPU in MHz.";
+               }
+               leaf memory-usage {
+                 type uint64;
+                 units "MB";
+                 description
+                   "Specifies the MB of memory usage.";
+               }
+               leaf memory-total {
+                 type uint64;
+                 units "MB";
+                 description
+                   "Specifies the MB of total memory.";
+               }
+               leaf memory-available {
+                 type uint64;
+                 units "MB";
+                 description
+                   "Specifies the MB of available memory.";
+               }
+               list disks {
+                 key disk-id;
+                 description
+                   "Disk is the hardware to store information for a
+                   long period, i.e., Hard Disk or Solid-State Drive.";
+                 leaf disk-id {
+                   type string;
+                   description
+                     "The ID of the storage disk. It is a free form
+                     identifier to identify the storage disk.";
+                 }
+                 leaf disk-usage {
+                   type uint8;
+                   units "percent";
+                   description
+                     "Specifies the percentage of disk usage.";
+                 }
+
+Wang, et al.             Expires – February 2023                [Page 25]
+                       I2NSF Intelligent Detection        September 2022
+
+                 leaf disk-space-left {
+                   type uint8;
+                   units "percent";
+                   description
+                     "Specifies the available disk space left of
+                      disk-id in percentage.";
+                 }
+               }
+               list interface {
+                 key interface-id;
+                 description
+                   "The network interface for connecting a device
+                    with the network.";
+                 leaf interface-id {
+                   type string;
+                   description
+                     "The ID of the network interface. It is a free
+                     form identifier to identify the network
+                     interface.";
+                 }
+                 leaf in-traffic-rate {
+                   type uint64;
+                   units "pps";
+                   description
+                     "The total inbound traffic rate in packets
+                     per second";
+                 }
+                 leaf out-traffic-rate {
+                   type uint64;
+                   units "pps";
+                   description
+                     "The total outbound traffic rate in packets
+                     per second";
+                 }
+                 leaf in-traffic-throughput {
+                   type uint64;
+                   units "Bps";
+                   description
+                     "The total inbound traffic throughput in
+                     bytes per second";
+                 }
+                 leaf out-traffic-throughput {
+                   type uint64;
+                   units "Bps";
+                   description
+                     "The total outbound traffic throughput in
+                      bytes per second.";
+                 }
+                 leaf packet-loss-rate {
+
+Wang, et al.             Expires – February 2023                [Page 26]
+                            I2NSF Intelligent Detection        September 2022
+
+                        type uint64;
+                        units "percent";
+                        description
+                          "The percentage of discarded packets.";
+                    }
+                }
+            }
+        }
+      }
+    }
+    notification i2nsf-nsf-event {
+      description
+        "Notification for I2NSF NSF Event. This notification
+        provides specific information that can only be
+        provided by an NSF that supports additional features
+        (e.g., DDoS attack detection).";
+      uses common-monitoring-data;
+      uses message;
+      uses characteristics-extended;
+      choice sub-event-type {
+        description
+        "This choice must be augmented with cases for
+         each allowed sub-event. Only 1 sub-event will be
+         instantiated in each container with all the
+         sub-event fields.";
+        case i2nsf-nsf-detection-module {
+          container i2nsf-nsf-detection-module {
+            description
+              "This notification is sent, when a specific
+                attack is detected.";
+            list detection-module {
+              key detection-module-name;
+              description
+              "The specific detection module.";
+              leaf detection-module-name {
+                 type string;
+                 description
+                 "The name of the specific detection module.";
+              }
+              leaf time-stamp {
+                 type yang:date-and-time;
+                 description
+                 "Specify the time of a message being delivered.";
+              }
+              leaf response-time {
+                 type yang:date-and-time;
+                 description
+
+Wang, et al.                  Expires – February 2023                [Page 27]
+                     I2NSF Intelligent Detection        September 2022
+
+                 "The time taken for the detection.";
+               }
+               leaf start-time {
+                 type yang:date-and-time;
+                 description
+                 "The start time for the detection.";
+               }
+               leaf end-time {
+                 type yang:date-and-time;
+                 description
+                 "The end time for the detection.";
+               }
+               container detected-attacks {
+                 description
+                 "The information of detected attacks.";
+                 list attack-traffic{
+                   key attack-id;
+                   description
+                   "The five-tuple (src/dst ip, port and protocol)
+                   and attack type information of specific attack
+                   traffic.";
+                   leaf attack-id {
+                     type string;
+                     description
+                     "The ID of the specific attack traffic which
+                     has the same src/dst IP,protocol and attack
+                     type.";
+                   }
+                   leaf attack-type {
+                     type string;
+                     description
+                     "The type of the detected attack.";
+                   }
+                   leaf attack-src-ip {
+                     type inet:ip-address-no-zone;
+                     description
+                       "The source IPv4 or IPv6 addresses of attack
+                       traffic. ";
+                   }
+                   leaf attack-dst-ip {
+                     type inet:ip-address-no-zone;
+                     description
+                       "The destination IPv4 or IPv6 addresses of
+                       attack traffic. ";
+                   }
+                   leaf-list attack-src-port {
+                     type inet:port-number;
+                     description
+                       "The transport-layer source ports of the
+
+Wang, et al.           Expires – February 2023                [Page 28]
+                                 I2NSF Intelligent Detection        September 2022
+
+                         attack. It can hold multiple ports.";
+                    }
+                    leaf-list attack-dst-port {
+                       type inet:port-number;
+                       description
+                           "The transport-layer destination
+                            ports of the attack. It can hold multiple
+                            ports.";
+                     }
+                     leaf protocol {
+                       type identityref {
+                          base protocol;
+                        }
+                        description
+                           "The type of network protocol for the 
+                             attack.";
+                         }
+                         uses attack-rates;
+                     }
+                  }
+               }
+             }
+           }
+         }
+       }
+     }
+   <CODE ENDS>
+
+4.2 The Extended Analytics Interface
+   This section describes the Extended Analytics Interface. The I2NSF
+   Analyzer sends feedback information and reconfiguration policies to
+   the Security Controller through this interface. The reconfiguration
+   policy in this document specifically refers to the path
+   reconfiguration policy.
+   The system feedback information refers to [I-D. lingga-i2nsf-
+   analytics-interface-dm], including the following information:
+   memory, CPU, disk, and interface alarm.
+   The NSF feedback in this document specifically refers to the DM
+   feedback, which is the same as the detection results defined in the
+   Extended Monitoring Interface.
+   The path reconfiguration policy is a new NSF path generated by
+   analyzing traffic features or detection results through the I2NSF
+   Analyzer to better detect attacks. The path reconfiguration policy
+   contains the following information:
+
+
+Wang, et al.                       Expires – February 2023                [Page 29]
+                     I2NSF Intelligent Detection        September 2022
+
+   o name: The name of the reconfiguration policy.
+   o path-id: Identify the different service function paths.
+
+   o nsf-name: Use the name to identify the NSF.
+
+   o sequence-number: Identifies the sequence of the NSF in the service
+      function path.
+
+
+4.2.1 YANG Tree Structure of Extended Analytics Interface
+
+   The tree structure of the Extended Analytics Interface is provided
+   below:
+   module: wang-i2nsf-extended-analytics-interface
+     +--rw i2nsf-feedback-information* [time-stamp]
+     | +--rw time-stamp                       yang:date-and-time
+     | +--rw message?                         string
+     | +--rw language?                        string
+     | +--rw system-feedback-information
+     | | +--rw (alarm-type)?
+     | |      +--:(memory-alarm)
+     | |      | +--rw memory-alarm
+     | |      |     +--rw usage?       uint8
+     | |      |     +--rw duration?    uint32
+     | |      +--:(cpu-alarm)
+     | |      | +--rw cpu-alarm
+     | |      |     +--rw usage?       uint8
+     | |      |     +--rw duration?    uint32
+     | |      +--:(disk-alarm)
+     | |      | +--rw disk-alarm
+     | |      |     +--rw disk-id?     string
+     | |      |     +--rw usage?       uint8
+     | |      |     +--rw duration?    uint32
+     | |      +--:(interface-alarm)
+     | |         +--rw interface-alarm
+     | |            +--rw interface-id?       string
+     | |            +--rw interface-state?    enumeration
+     | |            +--rw duration?           uint32
+     | +--rw nsf-feedback-information
+     |     +--rw (nsf-type)?
+     |        +--:(detection-module)
+     |           +--rw detection-module
+     |              +--rw detection-module-name?     string
+     |              +--rw detected-attacks
+     |                 +--rw attack-traffic* [attack-id]
+     |                    +--rw attack-id              string
+
+
+Wang, et al.            Expires – February 2023                 [Page 30]
+                     I2NSF Intelligent Detection        September 2022
+
+     |                    +--rw attack-src-ip? inet:ip-address-no-zone
+     |                    +--rw attack-dst-ip? inet:ip-address-no-zone
+     |                    +--rw attack-src-port*     inet:port-number
+     |                    +--rw attack-dst-port*     inet:port-number
+     |                    +--rw protocol?            identityref
+     |                    +--rw attack-rate?         uint64
+     |                    +--rw attack-throughput?   uint64
+     +--rw i2nsf-reconfiguration-policy* [name]
+        +--rw name                                 string
+        +--rw (policy-type)?
+           +--:(path-reconfiguration-policy)
+              +--rw path-reconfiguration-policy
+                 +--rw service-function-path* [path-id]
+                    +--rw path-id                  string
+                    +--rw nsfs
+                       +--rw nsf* [nsf-name]
+                          +--rw nsf-name           string
+                          +--rw sequence-number?   uint64
+        Figure3 YANG Tree Structure of Extended Analytics Interface
+
+
+
+4.2.2 YANG Data Model of Extended Analytics Interface
+
+   This section describes a YANG module of I2NSF Extended Analytics
+   interface. This YANG module imports from [RFC6991], and makes
+   references to [I-D. lingga-analytics-interface-dm] [RFC0768]
+   [RFC0791] [RFC0792] [RFC0854] [RFC1939] [RFC0959] [RFC2595]
+   [RFC4340] [RFC4443] [RFC5321] [RFC5646] [RFC6242] [RFC8200]
+   [RFC9051] [RFC9110] [RFC9112] [RFC9113] [RFC9260] [RFC9293].
+   <CODE BEGINS> file "wang-i2nsf-extended-analytics-interface@2022-09-
+   21.yang"
+   module wang-i2nsf-extended-analytics-interface {
+     yang-version 1.1;
+     namespace
+       "urn:ietf:params:xml:ns:yang:wang-i2nsf-extension-
+        analytics-interface";
+     prefix i2nsf-exai;
+     import ietf-inet-types {
+       prefix inet;
+       reference "RFC6991";
+     }
+     import ietf-yang-types {
+
+
+Wang, et al.            Expires – February 2023               [Page 31]
+                      I2NSF Intelligent Detection        September 2022
+
+        prefix yang;
+        reference "RFC6991";
+    }
+    organization
+      "IETF I2NSF (Interface to Network Security Functions)
+       Working Group";
+    contact
+      "WG Web: <https://datatracker.ietf.org/wg/i2nsf>
+       WG List: <mailto:i2nsf@ietf.org>
+         Author: Weilin Wang
+         <mailto:21111026@bjtu.edu.cn>
+         Author: Qi Guo
+         <mailto:20120044@bjtu.edu.cn>
+         Author: Shuangxing Deng
+         <mailto:21120038@bjtu.edu.cn>";
+    description
+      "This module is a YANG module for the extension of I2NSF
+       Analytics Interface.
+         The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
+         'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
+         'NOT RECOMMENDED', 'MAY', and 'OPTIONAL' in this
+         document are to be interpreted as described in BCP 14
+         (RFC 2119) (RFC 8174) when, and only when, they appear
+         in all capitals, as shown here.
+         Copyright (c) 2022 IETF Trust and the persons identified as
+         authors of the code. All rights reserved.
+         Redistribution and use in source and binary forms, with or
+         without modification, is permitted pursuant to, and subject
+         to the license terms contained in, the Revised BSD License
+         set forth in Section 4.c of the IETF Trust's
+         Legal Provisions Relating to IETF Documents
+         (https://trustee.ietf.org/license-info).
+         This version of this YANG module is part of RFC XXXX
+         (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
+         for full legal notices.";
+    revision "2022-09-19"{
+      description "Initial revision.";
+      reference
+        "RFC XXXX: Extension of I2NSF NSF Analytics Interface
+
+Wang, et al.             Expires – February 2023               [Page 32]
+                    I2NSF Intelligent Detection        September 2022
+
+         YANG Data Model";
+    }
+  /*
+   *Identity
+   */
+     identity protocol {
+       description
+         "An identity used to enable type choices in leaves
+         and leaf-lists with respect to protocol metadata. This is used
+         to identify the type of protocol that goes through the NSF.";
+     }
+     identity ip {
+       base protocol;
+       description
+         "General IP protocol type.";
+       reference
+         "RFC0791: Internet Protocol
+          RFC8200: Internet Protocol, Version 6 (IPv6)";
+     }
+     identity ipv4 {
+       base ip;
+       description
+         "IPv4 protocol type.";
+       reference
+         "RFC0791: Internet Protocol";
+     }
+     identity ipv6 {
+       base ip;
+       description
+         "IPv6 protocol type.";
+       reference
+         "RFC8200: Internet Protocol, Version 6 (IPv6)";
+     }
+     identity icmp {
+       base protocol;
+       description
+         "Base identity for ICMPv4 and ICMPv6 condition capability";
+       reference
+         "RFC0792: Internet Control Message Protocol
+          RFC4443: Internet Control Message Protocol (ICMPv6)
+          for the Internet Protocol Version 6 (IPv6) Specification
+          - ICMPv6";
+     }
+     identity icmpv4 {
+       base icmp;
+       description
+         "ICMPv4 protocol type.";
+       reference
+
+Wang, et al.           Expires – February 2023               [Page 33]
+                    I2NSF Intelligent Detection         September 2022
+
+        "RFC0791: Internet Protocol
+         RFC0792: Internet Control Message Protocol";
+    }
+    identity icmpv6 {
+      base icmp;
+      description
+        "ICMPv6 protocol type.";
+      reference
+        "RFC8200: Internet Protocol, Version 6 (IPv6)
+         RFC4443: Internet Control Message Protocol (ICMPv6)
+         for the Internet Protocol Version 6 (IPv6)
+         Specification";
+    }
+    identity transport-protocol {
+      base protocol;
+      description
+        "Base identity for Layer 4 protocol condition
+        capabilities, e.g., TCP, UDP, SCTP, DCCP, and ICMP.";
+    }
+    identity tcp {
+      base transport-protocol;
+      description
+        "TCP protocol type.";
+      reference
+        "[RFC9293]: Transmission
+         Control Protocol (TCP).";
+    }
+    identity udp {
+      base transport-protocol;
+      description
+        "UDP protocol type.";
+      reference
+        "RFC0768: User Datagram Protocol";
+    }
+    identity sctp {
+      base transport-protocol;
+      description
+        "Identity for SCTP condition capabilities";
+      reference
+        "RFC9260: Stream
+         Control Transmission Protocol";
+    }
+    identity dccp {
+      base transport-protocol;
+      description
+        "Identity for DCCP condition capabilities";
+      reference
+        "RFC4340: Datagram Congestion Control Protocol";
+    }
+
+Wang, et al.           Expires – February 2023               [Page 34]
+                    I2NSF Intelligent Detection          September 2022
+
+    identity application-protocol {
+      base protocol;
+      description
+        "Base identity for Application protocol. Note
+         that a subset of application protocols (e.g.,
+         HTTP, HTTPS, FTP, POP3, and IMAP) are handled
+         in this YANG module, rather than all the
+         existing application protocols.";
+    }
+    identity http {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+         version 1.1 (HTTP/1.1).";
+      reference
+        "[RFC9110]: HTTP Semantics
+         [RFC9112]: HTTP/1.1";
+    }
+    identity https {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+        version 1.1 (HTTP/1.1) over TLS.";
+      reference
+        "[RFC9110]: HTTP Semantics
+         [RFC9112]: HTTP/1.1";
+    }
+    identity http2 {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+        version 2 (HTTP/2).";
+      reference
+        "RFC9113: HTTP/2";
+    }
+    identity https2 {
+      base application-protocol;
+      description
+        "The identity for Hypertext Transfer Protocol
+        version 2 (HTTP/2) over TLS.";
+      reference
+        "RFC9113: HTTP/2";
+    }
+    identity ftp {
+      base application-protocol;
+      description
+        "FTP protocol type.";
+      reference
+        "RFC 0959: File Transfer Protocol";
+Wang, et al.          Expires – February 2023                 [Page 35]
+                    I2NSF Intelligent Detection         September 2022
+    }
+    identity ssh {
+      base application-protocol;
+      description
+        "SSH protocol type.";
+      reference
+        "RFC6242: Using the NETCONF Protocol over
+         Secure Shell (SSH)";
+    }
+    identity telnet {
+      base application-protocol;
+      description
+        "The identity for telnet.";
+      reference
+        "RFC 0854: Telnet Protocol";
+    }
+    identity smtp {
+      base application-protocol;
+      description
+        "The identity for smtp.";
+      reference
+        "RFC 5321: Simple Mail Transfer
+         Protocol (SMTP)";
+    }
+    identity pop3 {
+      base application-protocol;
+      description
+        "The identity for Post Office
+         Protocol 3 (POP3).";
+      reference
+        "RFC1939: Post Office Protocol
+         - Version 3 (POP3)";
+    }
+    identity pop3s {
+      base application-protocol;
+      description
+        "The identity for Post Office Protocol
+         3 (POP3) over TLS";
+      reference
+        "RFC1939: Post Office Protocol
+         - Version 3 (POP3)
+        RFC2595: Using TLS with IMAP, POP3 and ACAP";
+    }
+    identity imap {
+      base application-protocol;
+      description
+        "The identity for Internet Message Access
+         Protocol (IMAP).";
+      reference
+
+Wang, et al.          Expires – February 2023                [Page 36]
+                    I2NSF Intelligent Detection          September 2022
+
+        "RFC9051: Internet Message Access Protocol
+         (IMAP) - Version 4rev2";
+    }
+    identity imaps {
+      base application-protocol;
+      description
+        "The identity for Internet Message Access
+         Protocol (IMAP) over TLS";
+      reference
+        "RFC9051: Internet Message Access Protocol
+                   (IMAP) - Version 4rev2
+         RFC2595: Using TLS with IMAP, POP3 and ACAP";
+    }
+  /*
+   *Grouping
+   */
+    grouping message {
+      description
+        "A set of common monitoring data that is needed
+        as the basic information.";
+      leaf message {
+        type string;
+        description
+          "This is a free text annotation for
+          monitoring a notification's content.";
+      }
+      leaf language {
+        type string {
+          pattern '((([A-Za-z]{2,3}(-[A-Za-z]{3}(-[A-Za-z]{3})'
+            + '{0,2})?)|[A-Za-z]{4}|[A-Za-z]{5,8})(-[A-Za-z]{4})?'
+            + '(-([A-Za-z]{2}|[0-9]{3}))?(-([A-Za-z0-9]{5,8}'
+            + '|([0-9][A-Za-z0-9]{3})))*(-[0-9A-WYZa-wyz]'
+            + '(-([A-Za-z0-9]{2,8}))+)*(-[Xx](-([A-Za-z0-9]'
+            + '{1,8}))+)?|[Xx](-([A-Za-z0-9]{1,8}))+|'
+            + '(([Ee][Nn]-[Gg][Bb]-[Oo][Ee][Dd]|[Ii]-'
+            + '[Aa][Mm][Ii]|[Ii]-[Bb][Nn][Nn]|[Ii]-'
+            + '[Dd][Ee][Ff][Aa][Uu][Ll][Tt]|[Ii]-'
+            + '[Ee][Nn][Oo][Cc][Hh][Ii][Aa][Nn]'
+            + '|[Ii]-[Hh][Aa][Kk]|'
+            + '[Ii]-[Kk][Ll][Ii][Nn][Gg][Oo][Nn]|'
+            + '[Ii]-[Ll][Uu][Xx]|[Ii]-[Mm][Ii][Nn][Gg][Oo]|'
+            + '[Ii]-[Nn][Aa][Vv][Aa][Jj][Oo]|[Ii]-[Pp][Ww][Nn]|'
+            + '[Ii]-[Tt][Aa][Oo]|[Ii]-[Tt][Aa][Yy]|'
+            + '[Ii]-[Tt][Ss][Uu]|[Ss][Gg][Nn]-[Bb][Ee]-[Ff][Rr]|'
+            + '[Ss][Gg][Nn]-[Bb][Ee]-[Nn][Ll]|[Ss][Gg][Nn]-'
+            + '[Cc][Hh]-[Dd][Ee])|([Aa][Rr][Tt]-'
+            + '[Ll][Oo][Jj][Bb][Aa][Nn]|[Cc][Ee][Ll]-'
+
+Wang, et al.           Expires – February 2023           [Page 37]
+                      I2NSF Intelligent Detection        September 2022
+
+            +   '[Gg][Aa][Uu][Ll][Ii][Ss][Hh]|'
+            +   '[Nn][Oo]-[Bb][Oo][Kk]|[Nn][Oo]-'
+            +   '[Nn][Yy][Nn]|[Zz][Hh]-[Gg][Uu][Oo][Yy][Uu]|'
+            +   '[Zz][Hh]-[Hh][Aa][Kk][Kk][Aa]|[Zz][Hh]-'
+            +   '[Mm][Ii][Nn]|[Zz][Hh]-[Mm][Ii][Nn]-'
+            +   '[Nn][Aa][Nn]|[Zz][Hh]-[Xx][Ii][Aa][Nn][Gg])))';
+        }
+        default "en-US";
+        description
+          "The value in this field indicates the language tag
+          used for the human readable fields (i.e., '../message',
+          '/i2nsf-log/i2nsf-nsf-system-access-log/output', and
+          '/i2nsf-log/i2nsf-system-user-activity-log/additional-info
+          /cause').
+          The attribute is encoded following the rules in Section 2.1
+          in RFC5646. The default language tag is 'en-US'";
+        reference
+          "RFC5646: Tags for Identifying Languages.";
+      }
+    }
+    grouping attack-rates {
+      description
+        "A set of traffic rates for monitoring
+         attack traffic data.";
+      leaf attack-rate {
+        type uint64;
+        units "pps";
+        description
+          "The average packets per second (pps)
+           rate of attack traffic";
+      }
+      leaf attack-throughput {
+        type uint64;
+        units "Bps";
+        description
+          "The average bytes per second (Bps)
+           throughput of attack traffic";
+      }
+    }
+    list i2nsf-feedback-information {
+      key time-stamp;
+      description
+        "Feedback information includes system
+         feedback information about resources
+          and NSF feedback information.";
+      leaf time-stamp {
+        type yang:date-and-time;
+        description
+
+Wang, et al.            Expires – February 2023                [Page 38]
+                     I2NSF Intelligent Detection          September 2022
+
+        "Specify the time of the information
+         being delivered.";
+      }
+      uses message;
+      container system-feedback-information {
+        description
+          "The resources alarm about CPU, memory,
+            disks or interfaces will be sent to
+            I2NSF security controller.";
+        choice alarm-type {
+          description
+             "The alarm type.";
+          case memory-alarm {
+             container memory-alarm {
+               description
+                 "The container for memory alarm.";
+               leaf usage {
+                 type uint8 {
+                    range "0..100";
+                 }
+                 units "percent";
+                 description
+                    "The average usage for the duration
+                     of the alarm.";
+               }
+               leaf duration {
+                 type uint32;
+                 description
+                    "Specify the duration of the first
+                     alarm triggered until the feedback
+                     information is created.";
+               }
+             }
+          }
+          case cpu-alarm {
+             container cpu-alarm {
+               description
+                 "The case for CPU alarm.";
+               leaf usage {
+                 type uint8 {
+                    range "0..100";
+                 }
+                 units "percent";
+                 description
+                   "The average usage for the duration
+                    of the alarm.";
+               }
+               leaf duration {
+                 type uint32;
+
+Wang, et al.           Expires – February 2023                 [Page 39]
+                           I2NSF Intelligent Detection         September 2022
+
+                       description
+                         "Specify the duration of the first
+                          alarm triggered until the feedback
+                          information is created.";
+                   }
+               }
+          }
+          case disk-alarm {
+            container disk-alarm {
+              description
+                "The container for disk alarm.";
+              leaf disk-id {
+                type string;
+                description
+                  "The ID of the storage disk. It is
+                   free form identifier to identify
+                   the storage disk.";
+              }
+              leaf usage {
+                type uint8 {
+                  range "0..100";
+                }
+                units "percent";
+                description
+                  "The average usage for the duration
+                   of the alarm.";
+              }
+              leaf duration {
+                type uint32;
+                description
+                  "Specify the duration of the first
+                   alarm triggered until the feedback
+                   information is created.";
+              }
+            }
+          }
+          case interface-alarm {
+            container interface-alarm {
+              description
+                "The container for interface alarm.";
+              leaf interface-id {
+                type string;
+                description
+                  "The ID of the network interface. It is
+                   a free form identifier to identify
+                   the network interface.";
+              }
+              leaf interface-state {
+                type enumeration {
+
+Wang, et al.                 Expires – February 2023           [Page 40]
+                     I2NSF Intelligent Detection        September 2022
+
+                   enum up {
+                     value 1;
+                     description
+                       "The interface state is up and
+                        not congested. The interface is ready to
+                        pass packets.";
+                   }
+                   enum down {
+                     value 2;
+                     description
+                       "The interface state is down, i.e.,
+                       does not pass any packets.";
+                   }
+                   enum congested {
+                     value 3;
+                     description
+                       "The interface state is up but
+                        congested.";
+                   }
+                   enum testing {
+                     value 4;
+                     description
+                       "In some test mode. No operational
+                        packets can be passed.";
+                   }
+                   enum unknown {
+                     value 5;
+                     description
+                       "Status cannot be determined for
+                        some reason.";
+                   }
+                   enum dormant {
+                     value 6;
+                     description
+                       "Waiting for some external event.";
+                   }
+                   enum not-present {
+                     value 7;
+                     description
+                       "Some component (typically hardware) is
+                        missing.";
+                   }
+                   enum lower-layer-down {
+                     value 8;
+                     description
+                       "Down due to state of lower-layer
+                        interface(s).";
+                   }
+               }
+
+Wang, et al.           Expires – February 2023           [Page 41]
+                         I2NSF Intelligent Detection         September 2022
+
+                     description
+                       "The state of the interface. Applicable
+                        for Network Interface Failure Alarm.";
+                     reference
+                       "RFC 8343: A YANG Data Model for Interface
+                        Management- Operational States";
+                   }
+                   leaf duration {
+                     type uint32;
+                     description
+                       "Specify the duration of the first
+                        alarm triggered until the feedback
+                        information is created.";
+                   }
+               }
+          }
+        }
+      }
+      container nsf-feedback-information {
+        description
+          "The output of NSFs will be sent to the I2NSF
+           security controller.";
+        choice nsf-type {
+          description
+            "The NSF type.";
+          case detection-module {
+            container detection-module{
+              description
+                "The container for the detection
+                 module.";
+              leaf detection-module-name {
+                type string;
+                description
+                  "The name of the specific
+                    detection module.";
+              }
+              container detected-attacks {
+                description
+                  "The information of detected attacks.";
+                list attack-traffic{
+                  key attack-id;
+                  description
+                  "The five-tuple (src/dst ip, port and
+                    protocol) and attack type information
+                    of specific attack traffic.";
+                  leaf attack-id {
+                     type string;
+                     description
+                     "The ID of the specific attack traffic
+
+Wang, et al.               Expires – February 2023                   [Page 42]
+                             I2NSF Intelligent Detection        September 2022
+
+                        which has the same src/dst ip,
+                        protocol and attack type.";
+                     }
+                     leaf attack-type {
+                       type string;
+                       description
+                       "The type of the detected attack.";
+                     }
+                     leaf attack-src-ip {
+                       type inet:ip-address-no-zone;
+                       description
+                         "The source IPv4 or IPv6 addresses
+                          of attack traffic. It can hold
+                          multiple IPv4 or IPv6 addresses.";
+                     }
+                     leaf attack-dst-ip {
+                       type inet:ip-address-no-zone;
+                       description
+                         "The destination IPv4 or IPv6
+                          addresses of attack traffic. It can hold
+                          multiple IPv4 or IPv6 addresses.";
+                     }
+                     leaf-list attack-src-port {
+                       type inet:port-number;
+                       description
+                         "The transport-layer source ports
+                          of the attack.";
+                     }
+                     leaf-list attack-dst-port {
+                       type inet:port-number;
+                       description
+                         "The transport-layer destination ports
+                          of the attack.";
+                     }
+                     leaf protocol {
+                       type identityref {
+                         base protocol;
+                       }
+                       description
+                         "The type of network protocol for
+                          the interface counter. If this field
+                          is empty, then the counter includes
+                          all protocols (e.g., IPv4, IPv6,
+                          TCP, and UDP)";
+                     }
+                     uses attack-rates;
+                   }
+               }
+           }
+Wang, et al.                   Expires – February 2023          [Page 43]
+                     I2NSF Intelligent Detection        September 2022
+         }
+        }
+      }
+    }
+    list i2nsf-reconfiguration-policy {
+      description
+        "The reconfiguration policy generated
+         by the I2NSF Analyzer, which will
+         be sent to the I2NSF security controller.";
+      key name;
+      leaf name {
+        type string;
+        description
+          "The name of the reconfiguration policy.";
+      }
+      choice policy-type {
+        case path-reconfiguration-policy{
+          container path-reconfiguration-policy{
+            description
+              "The container for path reconfiguration
+                policy.";
+            list service-function-path{
+              key path-id;
+              description
+                 "Indicates the NSFs through which
+                  traffic passes in sequence.";
+              leaf path-id{
+                 type string;
+                 description
+                   "Identify the different service
+                     function paths.";
+              }
+              container nsfs {
+                 description
+                   "The container for the NSFs in the
+                     service function chain (SFC).";
+                 list nsf {
+                   key nsf-name;
+                   description
+                      "The container for the NSF.";
+                   leaf nsf-name {
+                      type string;
+                      description
+                        "Use the name to identify the NSF.";
+                   }
+                   leaf sequence-number {
+                      type uint64;
+                      description
+                        "Identifies the sequence of the NSF
+
+Wang, et al.           Expires – February 2023                  [Page 44]
+                                   I2NSF Intelligent Detection         September 2022
+
+                           in the service function path.";
+                         }
+                       }
+                     }
+                   }
+               }
+           }
+       }
+     }
+   }
+   <CODE ENDS>
+
+4.3 The Extended NSF-Facing Interface
+   This section describes the Extended NSF-Facing Interface. The
+   extension to the interface is the path configuration rule.
+   The path configuration rule contains the following information:
+   o path-id: Identify the different service function paths.
+   o classifier-name: Use the name to identity the classifier.
+
+   o classifier-ip: The IPv4 or IPv6 address of the classifier.
+
+   o nsf-name: Use the name to identify the NSF.
+
+   o sequence-number: Identifies the sequence of the NSF in the
+      service function path.
+
+   o nsf-ip: The IPv4 or IPv6 address of the NSF.
+
+   o sff-ip: The IPv4 or IPv6 address of the corresponding SFF.
+
+
+
+4.3.1 YANG Tree Structure of Extended NSF-Facing YANG Module
+
+   The tree structure of the Extended NSF-Facing YANG module is
+   provided below:
+   module: wang-i2nsf-extension-nsf-facing-interface
+     +--rw i2nsf-security-policy* [policy-name]
+        +--rw policy-name                string
+        +--rw path-configuration-rule
+           +--rw path-id?       string
+
+
+Wang, et al.                         Expires – February 2023       [Page 45]
+                     I2NSF Intelligent Detection           September 2022
+
+           +--rw classifiers
+           | +--rw classifier* [classifier-name]
+           |     +--rw classifier-name string
+           |     +--rw classifier-ip?     inet:ip-address-no-zone
+           +--rw nsfs
+              +--rw nsf* [nsf-name]
+                 +--rw nsf-name           string
+                 +--rw sequence-number?   uint64
+                 +--rw ip-address
+                    +--rw nsf-ip?   inet:ip-address-no-zone
+                    +--rw sff-ip?   inet:ip-address-no-zone
+     Figure 4: YANG Tree Structure of Extended NSF-Facing YANG Module
+
+
+
+4.3.2 YANG Data Model of Extended NSF-Facing YANG Module
+
+   This section describes a YANG module of I2NSF extended NSF facing
+   interface. This YANG module imports from [RFC6991], and makes
+   references to [I-D. ietf-i2nsf-nsf-facing-interface-dm].
+   <CODE BEGINS> file "wang-i2nsf-extended-nsf-facing-interface@2022-
+   09-21.yang"
+   module wang-i2nsf-extension-nsf-facing-interface {
+     yang-version 1.1;
+     namespace
+       "urn:ietf:params:xml:ns:yang:wang-i2nsf-extension-
+        nsf-facing-interface";
+     prefix i2nsf-exnfi;
+     import ietf-inet-types {
+       prefix inet;
+       reference "RFC 6991";
+     }
+     organization
+       "IETF I2NSF (Interface to Network Security Functions)
+        Working Group";
+     contact
+       "WG Web: <https://datatracker.ietf.org/wg/i2nsf>
+        WG List: <mailto:i2nsf@ietf.org>
+        Author: Weilin Wang
+        <mailto:21111026@bjtu.edu.cn>
+        Author: Qi Guo
+        <mailto:20120044@bjtu.edu.cn>
+Wang, et al.            Expires – February 2023                 [Page 46]
+                    I2NSF Intelligent Detection           September 2022
+       Author: Shuangxing Deng
+       <mailto:21120038@bjtu.edu.cn>";
+    description
+      "This module is a YANG module for the extension of I2NSF
+       NSF-Facing Interface.
+       The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
+       'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
+       'NOT RECOMMENDED', 'MAY', and 'OPTIONAL' in this
+       document are to be interpreted as described in BCP 14
+       (RFC 2119) (RFC 8174) when, and only when, they appear
+       in all capitals, as shown here.
+       Copyright (c) 2022 IETF Trust and the persons identified as
+       authors of the code. All rights reserved.
+       Redistribution and use in source and binary forms, with or
+       without modification, is permitted pursuant to, and subject
+       to the license terms contained in, the Revised BSD License
+       set forth in Section 4.c of the IETF Trust's
+       Legal Provisions Relating to IETF Documents
+       (https://trustee.ietf.org/license-info).
+       This version of this YANG module is part of RFC XXXX
+       (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
+       for full legal notices.";
+    revision "2022-09-19"{
+      description "Initial revision.";
+      reference
+        "RFC XXXX: Extension of I2NSF NSF-Facing Interface
+         YANG Data Model";
+    }
+    list i2nsf-security-policy {
+      key policy-name;
+      description
+        "The container for the security policy.";
+      leaf policy-name {
+        type string;
+        description
+          "The name of the security policy.";
+      }
+      container path-configuration-rule {
+        description
+          "The container for path configuration rule.";
+        leaf path-id {
+
+Wang, et al.           Expires – February 2023                 [Page 47]
+                    I2NSF Intelligent Detection        September 2022
+
+          type string;
+          description
+            "Identify the different service function paths.";
+        }
+        container classifiers {
+          description
+            "The container for classifiers in the service
+              function chain (SFC).";
+          list classifier {
+            key classifier-name;
+            description
+               "The container for the classifier.";
+            leaf classifier-name {
+               type string;
+               description
+                 "Use the name to identity the classifier.";
+            }
+            leaf classifier-ip {
+               type inet:ip-address-no-zone;
+               description
+                 "The IPv4 or IPv6 address of the classifier.";
+            }
+          }
+        }
+        container nsfs {
+          description
+            "The container for the nsfs in the
+              service function chain (SFC).";
+          list nsf {
+            key nsf-name;
+            description
+               "The container for the NSF.";
+            leaf nsf-name {
+               type string;
+               description
+                 "Use the name to identify the NSF.";
+            }
+            leaf sequence-number {
+               type uint64;
+               description
+                 "Identifies the sequence of the NSF in the
+                  service function path.";
+            }
+            container ip-address {
+               description
+                 "The IPv4 or IPv6 address of the NSF and
+                  the corresponding service function 
+                  forwarder (SFF).";
+               leaf nsf-ip {
+                 description
+
+Wang, et al.           Expires – February 2023               [Page 48]
+                             I2NSF Intelligent Detection        September 2022
+
+                     "The IPv4 or IPv6 address of the NSF.";
+                      type inet:ip-address-no-zone;
+                }
+                leaf sff-ip {
+                   description
+                       "The IPv4 or IPv6 address of the
+                         corresponding SFF.";
+                    type inet:ip-address-no-zone;
+                 }
+                }
+              }
+           }
+       }
+     }
+   }
+   <CODE ENDS>
+
+5. XML Examples of I2NSF Framework for AID
+   This section shows XML examples for the DDoS attacks [Two-Stage
+   Intelligent Model for Detecting Malicious DDoS Behavior] intelligent
+   detection, including XMLs of traffic flow features, path
+   reconfiguration policy and path configuration rules. Refer to
+   [RFC5277] for more detailed explanation of Event Streams. The XML
+   examples in this document follow the line breaks as per [RFC8792].
+                        +----------------------------------------------+
+                        | Secure Network                               |
+                        | CF/SFF:192.168.14.0/24,DDoS-DM:172.17.0.0/16 |
+                        |         +-------------------------+          |
+   +-------------+      | +---+   | +---------+             |  +---+   |
+   |DDoS Attacker|      | |CF1|-->| |SFF1     |             |->|CF2|   |
+   |23.1.0.22,   |DDoS  | +---+   | |DDoS-DM-1| +---------+ |  +---+   |
+   |23.1.0.23,   +----->|         | +---------+ |SFF3     | |    |     |
+   |23.1.0.24    |Attack|         | +---------+ |DDoS-DM-3| |    |     |
+   +-------------+      |         | |SFF2     | |DDoS-DM-5| |    v     |
+                        |         | |DDoS-DM-2| +---------+ | +------+ |
+                        |         | |DDoS-DM-4|             | |Server| |
+                        |         | +---------+             | +------+ |
+                        |         +-------------------------+          |
+                        +----------------------------------------------+
+                       Figure 5: A Scenario Example of a DDoS Attack
+   In this example, the scenario can be seen in Figure 5. This example
+   contains five DDoS DMs to detect different types of DDoS attacks.
+   The system presets an SFC path, path1= {DDoS-DM-2,
+   DDoS-DM-1, DDoS-DM-4, DDoS-DM-3}.
+
+Wang, et al.                   Expires – February 2023                  [Page 49]
+                     I2NSF Intelligent Detection        September 2022
+
+
+  The entrance classifier (CF1) feeds back traffic features to the
+  I2NSF Analyzer through the Extended Monitoring Interface. The
+  following XML file shows the feedback traffic flow features:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <notification
+    xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+      <eventTime>2022-09-20T11:28:01.00Z</eventTime>
+      <i2nsf-event
+        xmlns="urn:ietf:params:xml:ns:yang:wang-i2nsf-extended-
+  monitoring-interface">
+        <nsf-name>CF1</nsf-name>
+        <acquisition-method>subscription</acquisition-method>
+        <emission-type>on-change</emission-type>
+        <dampening-type>on-repetition</dampening-type>
+        <i2nsf-traffic-flow-features>
+          <measurement-time>5</measurement-time>
+          <packets-per-second>400.18</packets-per-second>
+          <bytes-per-second>450643.1</bytes-per-second>
+          <packet-size-mean>1126.1</packet-size-mean>
+          <src-ip-entropy>3.27</src-ip-entropy>
+          <dst-ip-entropy>1.71</dst-ip-entropy>
+          <TTL-entropy>3.17</TTL-entropy>
+          <tcp-src-port-entropy>5.34</tcp-src-port-entropy>
+          <tcp-dst-port-entropy>4.44</tcp-dst-port-entropy>
+          <udp-src-port-entropy>5.02</udp-src-port-entropy>
+          <udp-dst-port-entropy>5.02</udp-dst-port-entropy>
+          <packet-size-entropy>2.5</packet-size-entropy>
+          <packets-variance>0</packets-variance>
+        </i2nsf-traffic-flow-features>
+    </i2nsf-event>
+  </notification>
+            Figure 6: The Feedback Traffic Flow Features by CF1
+  The XML file in Figure6 shows:
+  o   The NSF that sends the information is named "CF1".
+  o   The monitoring information is received by subscription method.
+
+  o   The monitoring information is emitted "on-change".
+
+  o   The monitoring information is dampened "on-repetition".
+
+  o   The measurement time is 5s.
+
+
+
+Wang, et al.            Expires – February 2023                [Page 50]
+                     I2NSF Intelligent Detection       September 2022
+
+  o   The packets per second is 400.18.
+
+  o   The bytes per second is 450643.1.
+
+  o   The packet size mean is 1126.1.
+
+  o   The source IP entropy is 3.27.
+
+  o   The destination IP entropy is 1.71.
+
+  o   The TTL entropy is 3.17.
+
+  o   The TCP source port entropy is 5.34.
+
+  o   The TCP destination port entropy is 4.44.
+
+  o   The UDP source port entropy is 5.02.
+
+  o   The UDP destination port entropy is 5.02.
+
+  o   The packet size entropy is 2.5.
+
+  o   The packets variance is 0.
+  I2NSF Analyzer analyzes traffic features and generates path
+  reconfiguration policies for the current traffic. The policy is sent
+  to the Security Controller through the Extended Analytics Interface.
+  The following XML file shows the path reconfiguration policy:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <i2nsf-reconfiguration-policy
+    xmlns="urn:ietf:params:xml:ns:yang:wang-i2nsf-extension-analytics-
+  interface">
+      <name>detection-path-reconfiguration-policy</name>
+      <path-reconfiguration-policy>
+        <service-function-path>
+          <path-id>path2</path-id>
+          <nsfs>
+            <nsf>
+              <nsf-name>DDoS-DM-5</nsf-name>
+              <sequence-number>1</sequence-number>
+            </nsf>
+            <nsf>
+              <nsf-name>DDoS-DM-3</nsf-name>
+              <sequence-number>2</sequence-number>
+            </nsf>
+            <nsf>
+
+
+Wang, et al.           Expires – February 2023               [Page 51]
+                     I2NSF Intelligent Detection        September 2022
+
+              <nsf-name>DDoS-DM-4</nsf-name>
+              <sequence-number>3</sequence-number>
+            </nsf>
+          </nsfs>
+        </service-function-path>
+      </path-reconfiguration-policy>
+  </i2nsf-reconfiguration-policy>
+  Figure 7: The Path Reconfiguration Policy Generated by I2NSF Analyzer
+  The XML file in Figure7 shows:
+  o   The policy name is "detection-path-reconfiguration-policy".
+  o   The path ID is "path2".
+
+  o   The NSFs in the path are named "DDoS-DM-5", "DDoS-DM-3" and
+      "DDoS-DM-4". Their sequence numbers are "1", "2" and "3" 
+       respectively.
+  The Security Controller translates this policy into path
+  configuration rules and sends these rules to the SDN Controller
+  through the Extended NSF-Facing Interface. The following XML file
+  shows the path configuration rules for SDN Controller:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <i2nsf-security-policy
+    xmlns="urn:ietf:params:xml:ns:yang:wang-i2nsf-extension-nsf-facing-
+  interface">
+    <policy-name>detection-path-reconfiguration-policy</policy-name>
+    <path-configuration-rule>
+      <path-id>path2</path-id>
+      <classifiers>
+        <classifier>
+          <classifier-name>CF1</classifier-name>
+          <classifier-ip>192.168.14.7</classifier-ip>
+        </classifier>
+        <classifier>
+          <classifier-name>CF2</classifier-name>
+          <classifier-ip>192.168.14.8</classifier-ip>
+        </classifier>
+      </classifiers>
+      <nsfs>
+        <nsf>
+          <nsf-name>DDoS-DM-5</nsf-name>
+          <sequence-number>1</sequence-number>
+          <ip-address>
+             <nsf-ip>172.17.23.2</nsf-ip>
+             <sff-ip>192.168.14.23</sff-ip>
+
+
+Wang, et al.            Expires – February 2023               [Page 52]
+                      I2NSF Intelligent Detection       September 2022
+            </ip-address>
+          </nsf>
+          <nsf>
+            <nsf-name>DDoS-DM-3</nsf-name>
+            <sequence-number>2</sequence-number>
+            <ip-address>
+              <nsf-ip>172.17.23.3</nsf-ip>
+              <sff-ip>192.168.14.23</sff-ip>
+            </ip-address>
+          </nsf>
+          <nsf>
+            <nsf-name>DDoS-DM-4</nsf-name>
+            <sequence-number>3</sequence-number>
+            <ip-address>
+              <nsf-ip>172.17.24.2</nsf-ip>
+              <sff-ip>192.168.14.24</sff-ip>
+            </ip-address>
+          </nsf>
+        </nsfs>
+      </path-configuration-rule>
+         Figure 8: The Path Configuration Rules for SDN Controller
+  The XML file in Figure8 shows:
+  o   The policy name is "detection-path-reconfiguration-policy".
+  o   The path ID is "path2".
+
+  o   The classifiers in the path are named "CF1" and "CF2". Their IP
+      addresses are "192.168.14.7" and "192.168.14.8" respectively.
+
+  o   The first NSF in the path is named "DDoS-DM-5". Its IP address is
+      "172.17.23.2", and its corresponding SFF IP address is
+      "192.168.14.23".
+
+  o   The second NSF in the path is named "DDoS-DM-3". Its IP address
+      is "172.17.23.3", and its corresponding SFF IP address is
+      "192.168.14.23".
+
+  o   The third NSF in the path is named "DDoS-DM-4". Its IP address is
+      "172.17.24.2", and its corresponding SFF IP address is
+      "192.168.14.24".
+  The SDN Controller generates flow tables according to the path
+  configuration rules and sends them to CFs and SFFs to make the
+  traffic pass the new detection path, path2= {DDoS-DM-5, DDoS-DM-3,
+  DDoS-DM-4}. Through three extended interfaces, I2NSF Analyzer and
+
+
+Wang, et al.            Expires – February 2023               [Page 53]
+                         I2NSF Intelligent Detection    September 2022
+
+   Security Controller realize dynamic automatic adjustment of DDoS
+   attack detection path policy based on the closed-loop feedback.
+
+6. IANA Considerations
+   This document has no IANA actions
+
+7. Security Considerations
+   The YANG module specified in this document defines a data schema
+   designed to be accessed through network management protocols such as
+   NETCONF [RFC6241] or RESTCONF [RFC8040]. The lowest NETCONF layer is
+   the secure transport layer, and the required secure transport is
+   Secure Shell (SSH) [RFC6242]. The lowest RESTCONF layer is HTTPS,
+   and the required secure transport is TLS [RFC8446].
+   The NETCONF access control model [RFC8341] provides a means of
+   restricting access to specific NETCONF or RESTCONF users to a
+   preconfigured subset of all available NETCONF or RESTCONF protocol
+   operations and content.
+   There are a number of data nodes defined in this YANG module that are
+   writable/creatable/delectable (i.e., config true, which is the
+   default). These data nodes may be considered sensitive or vulnerable
+   in some network environments. Write operations (e.g., edit-config) to
+   these data nodes without proper protection can have a negative effect
+   on network operations. The data models in this document uses the data
+   model from NSF Monitoring data model, Analytics Interface YANG data
+   model and NSF-Facing Interface data model, they MUST follow the
+   Security Considerations mentioned in [I-D. ietf-i2nsf-nsf-monitoring-
+   data-model], [I-D. lingga-i2nsf-analytics-interface-dm] and [I-D.
+   ietf-i2nsf-nsf-facing-interface-dm].
+   Some of the readable data nodes in this YANG module may be considered
+   sensitive or vulnerable in some network environments. Thus, it is
+   important to control read access (e.g., via get, get-config, or
+   notification) to these data nodes. This document MUST also follow the
+   Security Considerations about the readable data nodes mentioned in
+   [I-D. ietf-i2nsf-nsf-monitoring-data-model], [I-D. lingga-i2nsf-
+   analytics-interface-dm] and [I-D. ietf-i2nsf-nsf-facing-interface-
+   dm].
+
+8. References
+8.1 Normative References
+
+
+
+Wang, et al.               Expires – February 2023            [Page 54]
+                     I2NSF Intelligent Detection       September 2022
+
+   [RFC0768] Postel, J., "User Datagram Protocol", STD 6, RFC 768, DOI
+             10.17487/RFC0768, August 1980, <https://www.rfc-
+             editor.org/info/rfc768>.
+   [RFC0791] Postel, J., "Internet Protocol", STD 5, RFC 791, DOI
+             10.17487/RFC0791, September 1981, <https://www.rfc-
+             editor.org/info/rfc791>.
+   [RFC0792] Postel, J., "Internet Control Message Protocol", STD 5,
+             RFC 792, DOI 10.17487/RFC0792, September 1981,
+             <https://www.rfc-editor.org/info/rfc792>.
+   [RFC0854] Postel, J. and J. Reynolds, "Telnet Protocol
+             Specification", STD 8, RFC 854, DOI 10.17487/RFC0854, May
+             1983, <https://www.rfc-editor.org/info/rfc854>.
+   [RFC0959] Postel, J. and J. Reynolds, "File Transfer Protocol", STD
+             9, RFC 959, DOI 10.17487/RFC0959, October 1985,
+             <https://www.rfc-editor.org/info/rfc959>.
+   [RFC1939] Myers, J. and M. Rose, "Post Office Protocol - Version 3",
+             STD 53, RFC 1939, DOI 10.17487/RFC1939, May 1996,
+             <https://www.rfc-editor.org/info/rfc1939>.
+   [RFC2119] Bradner, S., "Key words for use in RFCs to Indicate
+             Requirement Levels", BCP 14, RFC 2119, DOI
+             10.17487/RFC2119, March 1997, <https://www.rfc-
+             editor.org/info/rfc2119>.
+   [RFC2595] Newman, C., "Using TLS with IMAP, POP3 and ACAP", RFC 2595,
+             DOI 10.17487/RFC2595, June 1999, <https://www.rfc-
+             editor.org/info/rfc2595>.
+   [RFC4340] Kohler, E., Handley, M., and S. Floyd, "Datagram
+             Congestion Control Protocol (DCCP)", RFC 4340, DOI
+             10.17487/RFC4340, March 2006,<https://www.rfc-
+             editor.org/info/rfc4340>.
+   [RFC4443] Conta, A., Deering, S., and M. Gupta, Ed., "Internet
+             Control Message Protocol (ICMPv6) for the Internet
+             Protocol Version 6 (IPv6) Specification", STD 89, RFC 4443,
+             DOI 10.17487/RFC4443, March 2006, <https://www.rfc-
+             editor.org/info/rfc4443>.
+   [RFC5277] Chisholm, S. and H. Trevino, "NETCONF Event Notifications",
+             RFC 5277, DOI 10.17487/RFC5277, July 2008,
+             <https://www.rfc-editor.org/info/rfc5277>.
+
+
+
+Wang, et al.           Expires – February 2023               [Page 55]
+                     I2NSF Intelligent Detection       September 2022
+
+   [RFC5321] Klensin, J., "Simple Mail Transfer Protocol", RFC 5321,
+             DOI 10.17487/RFC5321, October 2008, <https://www.rfc-
+             editor.org/info/rfc5321>.
+   [RFC5646] Phillips, A., Ed. and M. Davis, Ed., "Tags for Identifying
+             Languages", BCP 47, RFC 5646, DOI 10.17487/RFC5646,
+             September 2009, <https://www.rfc-editor.org/info/rfc5646>.
+   [RFC6020] Bjorklund, M., "YANG - A Data Modeling Language for the
+             Network Configuration Protocol (NETCONF)", RFC 6020,
+             October 2010, <https://www.rfc-editor.org/info/rfc6020>.
+   [RFC6241] Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
+             and A. Bierman, Ed., "Network Configuration Protocol
+             (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
+             <https://www.rfc-editor.org/info/rfc6241>.
+   [RFC6242] Wasserman, M., "Using the NETCONF Protocol over Secure
+             Shell (SSH)", RFC 6242, DOI 10.17487/RFC6242, June 2011,
+             <https://www.rfc-editor.org/info/rfc6242>.
+   [RFC6991] Schoenwaelder, J., Ed., "Common YANG Data Types", RFC 6991,
+             DOI 10.17487/RFC6991, July 2013, <https://www.rfc-
+             editor.org/info/rfc6991>.
+   [RFC8040] Bierman, A., Bjorklund, M., and K. Watsen, "RESTCONF
+             Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
+             <https://www.rfc-editor.org/info/rfc8040>.
+   [RFC8174] Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+             2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+             May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+   [RFC8200] Deering, S. and R. Hinden, "Internet Protocol, Version 6
+             (IPv6) Specification", STD 86, RFC 8200, DOI
+             10.17487/RFC8200, July 2017, <https://www.rfc-
+             editor.org/info/rfc8200>.
+   [RFC8341] Bierman, A. and M. Bjorklund, "Network Configuration
+             Access Control Model", RFC 8341, DOI 10.17487/RFC8341, STD
+             91, March 2018, <https://www.rfc-editor.org/info/rfc8341>.
+   [RFC8446] Rescorla, E., "The Transport Layer Security (TLS) Protocol
+             Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+             <https://www.rfc-editor.org/info/rfc8446>.
+   [RFC8641] Clemm, A. and E. Voit, "Subscription to YANG Notifications
+             for Datastore Updates", RFC 8641, DOI 10.17487/RFC8641,
+             September 2019, <https://www.rfc-editor.org/info/rfc8641>.
+
+Wang, et al.           Expires – February 2023               [Page 56]
+                     I2NSF Intelligent Detection       September 2022
+
+
+   [RFC9051] Melnikov, A., Ed. and B. Leiba, Ed., "Internet
+             MessageAccess Protocol (IMAP) - Version 4rev2", RFC 9051,
+             DOI 10.17487/RFC9051, August 2021, <https://www.rfc-
+             editor.org/info/rfc9051>.
+   [RFC9110] R. Fielding, M. Nottingham and J. Reschke, "HTTP
+             Semantics", RFC9110, DOI 10.17487/RFC9110, June 2022,
+             <https://www.rfc-editor.org/info/rfc9110>.
+   [RFC9112] Fielding, R. T., Nottingham, M., and J. Reschke,
+             "HTTP/1.1", RFC9112, DOI 10.17487/RFC9112, June 2022,
+             <https://www.rfc-editor.org/info/rfc9112>.
+
+   [RFC9113] Thomson, M. and C. Benfield, "HTTP/2", RFC9113, DOI
+             10.17487/RFC9113, June 2022, <https://www.rfc-
+             editor.org/info/rfc9113>.
+   [RFC9260] R. Stewart, M. Tüxen and K. Nielsen, "Stream Control
+             Transmission Protocol", DOI 10.17487/RFC9260, June 2022,
+             <https://www.rfc-editor.org/info/rfc9260>.
+   [RFC9293] W. Eddy, "Transmission Control Protocol (TCP)", DOI
+             10.17487/RFC9293, August 2022, <https://www.rfc-
+             editor.org/info/rfc9293>.
+  [I-D. lingga-i2nsf-analytics-interface-dm]
+         P. Lingga, Ed., J. Jeong, Ed. and Y. Choi, "I2NSF Analytics
+         Interface YANG Data Model", Work in Progress, Internet-Draft,
+         draft-lingga-i2nsf-analytics-interface-dm-00, 25 July 2022, <
+         https://www.ietf.org/archive/id/draft-lingga-i2nsf-analytics-
+         interface-dm-00.txt>.
+  [I-D. ietf-i2nsf-applicability]
+         Jeong, J. P., Hyun, S., Ahn, T., Hares, S., and D. R. Lopez,
+         "Applicability of Interfaces to Network Security Functions to
+         Network-Based Security Services", Work in Progress, Internet-
+         Draft, draft-ietf-i2nsf-applicability-18, 16 September 2019,
+         <https://www.ietf.org/archive/id/draft-ietf-i2nsf-
+         applicability-18.txt>.
+  [I-D. ietf-i2nsf-nsf-facing-interface-dm]
+         Kim, J. T., Jeong, J. P., Park, J., Hares, S., and Q. Lin,
+         "I2NSF Network Security Function-Facing Interface YANG Data
+         Model", Work in Progress, Internet-Draft, draft-ietfi2nsf-nsf-
+         facing-interface-dm-29, 1 June 2022,
+         <https://www.ietf.org/archive/id/draft-ietf-i2nsf-nsffacing-
+         interface-dm-29.txt>.
+
+Wang, et al.           Expires – February 2023               [Page 57]
+                     I2NSF Intelligent Detection        September 2022
+
+
+   [I-D. ietf-i2nsf-nsf-monitoring-data-model]
+          Jeong, J. P., Lingga, P., Hares, S., Xia, L. F., and H.
+          Birkholz, "I2NSF NSF Monitoring Interface YANG Data Model",
+          Work in Progress, Internet-Draft, draft-ietfi2nsf-nsf-
+          monitoring-data-model-20, 1 June 2022,
+          <https://www.ietf.org/archive/id/draft-ietf-i2nsf-
+          nsfmonitoring-data-model-20.txt>.
+   [I-D. jeong-i2nsf-security-management-automation]
+          Jeong, J. (., Lingga, P., and J. Park, "An Extension of I2NSF
+          Framework for Security Management Automation in Cloud-Based
+          Security Services", Work in Progress, Internet-Draft, draft-
+          jeong-i2nsf-security-managementautomation-04, 25 July 2022,
+          <https://www.ietf.org/archive/id/draft-jeong-i2nsfsecurity-
+          management-automation-04.txt>.
+   [ITU-TY.3300]
+          International Telecommunications Union "Y.3300: Framework of
+          software defined networking", June 2014,
+          <https://www.itu.int/rec/T-REC-Y.3300/en>.
+
+8.2 Informative References
+   [RFC7665] Halpern, J. and C. Pignataro, "Service Function Chaining
+             (SFC) Architecture", RFC 7665, October 2015,
+             <https://www.rfc-editor.org/info/rfc7665>.
+   [RFC8192] Hares, S. Lopez, D. Zarny, M. Jacquenet, C. Kumar, R. and
+             J. Jeong "Interface to Network Security Functions (I2NSF):
+             Problem Statement and Use Cases" RFC8192 DOI
+             10.17487/RFC8192 <https://www.rfc-editor.org/info/rfc8192>.
+   [RFC8329] Lopez, D. Lopez, E. Dunbar, L. Strassner, J. R. Kumar
+             "Framework for Interface to Network Security Functions",
+             RFC 8329, DOI 10.17487/RFC8329, <https://www.rfc-
+             editor.org/info/rfc8329>.
+   [RFC8455] V. Bhuvaneswaran, A. Basil, M. Tassinari, V. Manral and S.
+             Banks, "Terminology for Benchmarking Software-Defined
+             Networking (SDN) Controller Performance", RFC8455, DOI
+             10.17487/RFC8455, <https://www.rfc-
+             editor.org/info/rfc8455>.
+   [RFC8792] Watsen, K., Auerswald, E., Farrel, A., and Q. Wu,
+             "Handling Long Lines in Content of Internet-Drafts and
+             RFCs", RFC 8792, DOI 10.17487/RFC8792, June 2020,
+             <https://www.rfc-editor.org/info/rfc8792>.
+
+Wang, et al.            Expires – February 2023               [Page 58]
+                     I2NSF Intelligent Detection       September 2022
+
+
+  [Two-Stage Intelligent Model for Detecting Malicious DDoS Behavior]
+         Li, M.; Zhou, H.; Qin, Y. Two-Stage Intelligent Model for
+         Detecting Malicious DDoS Behavior. Sensors 2022, 22, 2532.
+         https:// doi.org/10.3390/s22072532
+
+Acknowledgments
+  TBC
+
+Author's Addresses
+  Weilin Wang
+  Beijing Jiaotong University
+  Beijing
+  Phone: <86-15910887582>
+  Email: 21111026@bjtu.edu.cn
+  Huachun Zhou
+  Beijing Jiaotong University
+  Beijing
+  Phone: <86-13718168186>
+  Email: hchzhou@bjtu.edu.cn
+  Man Li
+  Beijing Jiaotong University
+  Beijing
+  Phone: <86-18810911698>
+  Email: 20111018@bjtu.edu.cn
+  Qi Guo
+  Beijing Jiaotong University
+  Beijing
+  Phone: <86-18310379269>
+  Email: 20120044@bjtu.edu.cn
+  Shuangxing Deng
+  Beijing Jiaotong University
+  Beijing
+  Phone: <86-13040062046>
+  Email: 21120038@bjtu.edu.cn
+
+Wang, et al.           Expires – February 2023               [Page 59]
+

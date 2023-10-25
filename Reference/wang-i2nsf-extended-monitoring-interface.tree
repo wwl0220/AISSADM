@@ -1,0 +1,88 @@
+module: wang-i2nsf-extended-monitoring-interface
+
+  notifications:
+    +---n i2nsf-event
+    |  +--ro vendor-name?                         string
+    |  +--ro device-model?                        string
+    |  +--ro software-version?                    string
+    |  +--ro nsf-name                             union
+    |  +--ro message?                             string
+    |  +--ro language?                            string
+    |  +--ro acquisition-method?                  identityref
+    |  +--ro emission-type?                       identityref
+    |  +--ro dampening-type?                      identityref
+    |  +--ro (sub-event-type)?
+    |     +--:(i2nsf-flow-features)
+    |        +--ro i2nsf-traffic-flow-features
+    |           +--ro measurement-time?       uint32
+    |           +--ro packets-per-second?     uint64
+    |           +--ro bytes-per-second?       uint64
+    |           +--ro packet-size-mean?       uint64
+    |           +--ro src-ip-entropy?         uint64
+    |           +--ro dst-ip-entropy?         uint64
+    |           +--ro TTL-entropy?            uint64
+    |           +--ro tcp-src-port-entropy?   uint64
+    |           +--ro tcp-dst-port-entropy?   uint64
+    |           +--ro udp-src-port-entropy?   uint64
+    |           +--ro udp-dst-port-entropy?   uint64
+    |           +--ro packet-size-entropy?    uint64
+    |           +--ro packets-variance?       uint64
+    +---n i2nsf-log
+    |  +--ro vendor-name?                       string
+    |  +--ro device-model?                      string
+    |  +--ro software-version?                  string
+    |  +--ro nsf-name                           union
+    |  +--ro message?                           string
+    |  +--ro language?                          string
+    |  +--ro acquisition-method?                identityref
+    |  +--ro emission-type?                     identityref
+    |  +--ro dampening-type?                    identityref
+    |  +--ro (sub-logs-type)?
+    |     +--:(i2nsf-system-res-util-log)
+    |        +--ro i2nsf-system-res-util-log
+    |           +--ro system-status?      enumeration
+    |           +--ro cpu-usage?          uint8
+    |           +--ro cpu-freq?           uint64
+    |           +--ro memory-usage?       uint64
+    |           +--ro memory-total?       uint64
+    |           +--ro memory-available?   uint64
+    |           +--ro disks* [disk-id]
+    |           |  +--ro disk-id            string
+    |           |  +--ro disk-usage?        uint8
+    |           |  +--ro disk-space-left?   uint8
+    |           +--ro interface* [interface-id]
+    |              +--ro interface-id              string
+    |              +--ro in-traffic-rate?          uint64
+    |              +--ro out-traffic-rate?         uint64
+    |              +--ro in-traffic-throughput?    uint64
+    |              +--ro out-traffic-throughput?   uint64
+    |              +--ro packet-loss-rate?         uint64
+    +---n i2nsf-nsf-event
+       +--ro vendor-name?                             string
+       +--ro device-model?                            string
+       +--ro software-version?                        string
+       +--ro nsf-name                                 union
+       +--ro message?                                 string
+       +--ro language?                                string
+       +--ro acquisition-method?                      identityref
+       +--ro emission-type?                           identityref
+       +--ro dampening-type?                          identityref
+       +--ro (sub-event-type)?
+          +--:(i2nsf-nsf-ddos-detection-module)
+             +--ro i2nsf-nsf-ddos-detection-module
+                +--ro detection-module* [detection-module-name]
+                   +--ro detection-module-name    string
+                   +--ro time-stamp?              yang:date-and-time
+                   +--ro response-time?           yang:date-and-time
+                   +--ro start-time?              yang:date-and-time
+                   +--ro end-time?                yang:date-and-time
+                   +--ro detected-attacks
+                      +--ro attack-traffic* [attack-id]
+                         +--ro attack-id            string
+                         +--ro attack-src-ip?       inet:ip-address-no-zone
+                         +--ro attack-dst-ip?       inet:ip-address-no-zone
+                         +--ro attack-src-port*     inet:port-number
+                         +--ro attack-dst-port*     inet:port-number
+                         +--ro protocol?            identityref
+                         +--ro attack-rate?         uint64
+                         +--ro attack-throughput?   uint64
