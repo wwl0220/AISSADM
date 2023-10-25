@@ -1,2 +1,2 @@
 # AISSADM
-The AI security services autonomic deployment mechanism.
+Paper: An Autonomous Deployment Mechanism for AI Security Services.
